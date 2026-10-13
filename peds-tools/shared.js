@@ -1,5 +1,5 @@
 /* Pediatric Tools: shared page shell. Loaded without defer in each page's <head>:
-     <script src="shared.js?v=2"></script>
+     <script src="shared.js?v=3"></script>
    and started at the end of <body> with:
      <script>window.PedsShared && PedsShared.init();</script>
    Bump ?v= on every page whenever this file changes (same rule as pets.js).
@@ -107,6 +107,11 @@
     pinGate();
     themeSwitch();
   }
+  // Offline copy for the home-screen app (/sw.js covers the whole site). Errors are ignored: the site works without it.
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+  }
+
   window.PedsShared = { init };
   // Fallback if a page forgets the init call at the end of <body>.
   document.addEventListener("DOMContentLoaded", init);
