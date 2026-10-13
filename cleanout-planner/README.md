@@ -4,7 +4,7 @@
 
 A simple web app that gives parents their child's 3-day constipation cleanout and daily maintenance plan, dosed by weight, with reminders for every dose.
 
-### 👉 Open the app: **https://hyponatremia-peds.github.io/cleanout-planner/**
+### 👉 Open the app: **https://christianrada-do.github.io/cleanout-planner/**
 
 <p align="center">
   <img src="qr-code.png" alt="QR code that opens the Constipation Cleanout Planner" width="260">
