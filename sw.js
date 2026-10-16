@@ -3,11 +3,11 @@
 // cache), so a fix reaches phones on the next online load. The saved copy is used only when the network fails.
 // Platform rules: MDN, "Using Service Workers", "Cache", "Response.redirect()" (developer.mozilla.org).
 // Any ?v= bump, new or renamed page, or new icon: update PRECACHE with the exact URL and bump CACHE (HANDOFF §2).
-const CACHE = "peds-tools-v2";
+const CACHE = "peds-tools-v3";
 const PRECACHE = [
   "/peds-tools/", "/peds-tools/asm-dosing.html", "/peds-tools/ballard.html", "/peds-tools/febrile-infant.html",
   "/peds-tools/febrile-infant-chop.html", "/peds-tools/kawasaki.html", "/peds-tools/fluids.html",
-  "/peds-tools/milestones.html", "/peds-tools/twin-log.html", "/peds-tools/validation.html",
+  "/peds-tools/milestones.html", "/peds-tools/twin-log.html", "/peds-tools/baby-tracker.html", "/peds-tools/validation.html",
   "/peds-tools/credits.html", "/peds-tools/breathing.html", "/peds-tools/breathing-qr.png", "/cleanout-planner/",
   "/peds-tools/shared.js?v=3", "/peds-tools/pets.js?v=5", "/peds-tools/fonts/karmina.css?v=2",
   "/peds-tools/fonts/Karmina-Regular.otf", "/peds-tools/fonts/Karmina-BoldItalic.otf",

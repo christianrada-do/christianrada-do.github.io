@@ -168,6 +168,12 @@
         <p>The levels of validation, validation statements and probing questions, with a button that gives you one at random, plus self-validation.</p>
         <div class="btns"><a class="btn" href="validation.html">Open validation</a></div>
       </article>
+      <article class="tool">
+        <span class="tag">Log</span>
+        <h3>Baby Tracker</h3>
+        <p>Feeds, diapers and sleep for one baby or two, one tap each. Everything stays on this phone.</p>
+        <div class="btns"><a class="btn" href="baby-tracker.html">Open the Baby Tracker</a></div>
+      </article>
       <article class="tool soon">
         <span class="tag">Coming soon</span>
         <h3>More planners and calculators</h3>
@@ -179,29 +185,6 @@
       <p><b>iPhone:</b> in Safari, tap Share, then <b>Add to Home Screen</b>. <b>Android:</b> in Chrome, tap the ⋮ menu, then <b>Install app</b> or <b>Add to Home screen</b>.</p>
       <p class="hint">Every page is saved on your phone the first time you open this site. Without signal you see the last saved copy; with signal you always get the newest version.</p>
     </details>
-  </section>
-
-  <!-- ============ FAMILY ============ -->
-  <section aria-labelledby="family-h">
-    <h2 id="family-h">Family</h2>
-    <!-- Family PIN gate (its own PIN, set in shared.js). A convenience gate, not security. -->
-    <form class="tool pin" id="fam-pin-form" data-gate="twin" autocomplete="off">
-      <label for="fam-pin">Enter the family PIN</label>
-      <div class="pin-row">
-        <input id="fam-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" aria-describedby="fam-pin-msg">
-        <button class="btn" type="submit">Unlock</button>
-      </div>
-      <p class="pin-msg" id="fam-pin-msg" role="alert"></p>
-    </form>
-    <div class="tools" id="family-tools" data-pin-gated="twin" hidden>
-      <article class="tool">
-        <span class="tag">Log</span>
-        <h3>Twin Log</h3>
-        <p>Feeds, diapers and sleep for two babies, one tap each. Everything stays on this phone.</p>
-        <div class="btns"><a class="btn" href="twin-log.html">Open the Twin Log</a></div>
-      </article>
-      <div class="btns"><button class="btn secondary" type="button" data-lock="twin">Lock family section</button></div>
-    </div>
   </section>
 
   <!-- ============ FOR CLINICIANS ============ -->
