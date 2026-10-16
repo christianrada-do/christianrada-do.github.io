@@ -46,7 +46,8 @@
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
-  body { margin: 0; background: var(--page); color: var(--body); font: 16px/1.55 var(--sans); padding-bottom: 72px; }
+  /* No bottom padding on this page, so the red 911 line is the last thing on screen at full scroll. */
+  body { margin: 0; background: var(--page); color: var(--body); font: 16px/1.55 var(--sans); padding-bottom: 0; }
   strong, b { color: var(--heading); font-weight: 600; }
   a { color: var(--heading); }
   .band { background: var(--band); color: var(--band-text); }
@@ -97,16 +98,39 @@
 
   /* the breathing guide */
   .guide { display: flex; flex-direction: column; align-items: center; text-align: center; }
-  .guide svg { width: min(78vw, 300px); height: auto; display: block; }
-  .guide .track { fill: none; stroke: var(--border); stroke-width: 6; }
-  .guide .side { stroke: var(--calm); stroke-width: 8; stroke-linecap: round; }
+  .guide svg { width: min(88vw, 340px); height: auto; display: block; overflow: visible; }
+  .guide .track { fill: var(--calm-soft); stroke: var(--border); stroke-width: 3; }
+  .guide .inner { fill: none; stroke: var(--calm); stroke-width: 1; opacity: .25; }
+  .guide .side { stroke: var(--calm); stroke-width: 9; stroke-linecap: round; }
+  .guide .side.done { opacity: .4; }
+  .guide .pip { fill: var(--panel); stroke: var(--calm); stroke-width: 3; }
+  .guide .pip.on { fill: var(--calm); }
   .guide .dot { fill: var(--calm); }
+  .guide .halo { fill: none; stroke: var(--calm); stroke-width: 2.5; opacity: .45; transform-box: fill-box; transform-origin: center; }
+  .guide .halo.pulse { animation: halo 2s ease-in-out infinite; }
+  @keyframes halo { 0%, 100% { transform: scale(1); opacity: .45; } 50% { transform: scale(1.45); opacity: .15; } }
   .guide .bubble { fill: var(--calm-soft); stroke: var(--calm); stroke-width: 4; }
-  .phase { font-family: var(--serif); font-size: clamp(1.8rem, 7vw, 2.4rem); color: var(--heading); margin: 14px 0 0; line-height: 1.1; min-height: 1.2em; }
-  .count { font-family: var(--mono); font-size: 2.6rem; color: var(--calm); margin: 2px 0 6px; min-height: 1.2em; line-height: 1.1; }
-  .stats { font-family: var(--mono); font-size: 13px; color: var(--body); margin: 10px 0 0; }
+  .guide .target { fill: none; stroke: var(--calm); stroke-width: 1.5; stroke-dasharray: 4 6; opacity: .45; }
+  .guide .lbl { font-family: var(--mono); font-size: 12.5px; letter-spacing: .03em; fill: var(--body); }
+  .guide .lbl.on { fill: var(--calm); }
+  .guide .ctr-count { font-family: var(--mono); font-size: 56px; fill: var(--calm); }
+  .guide .ctr-word { font-family: var(--serif); font-size: 23px; fill: var(--heading); }
+  .guide .ctr-word.idle { font-size: 15px; }
+  @media (prefers-reduced-motion: reduce) { .guide .glowy { filter: none; } .guide .halo.pulse { animation: none; } }
+  .stats { font-family: var(--mono); font-size: 13px; color: var(--body); margin: 14px 0 0; }
   .note { margin: 10px 0 0; font-size: 15px; color: var(--heading); min-height: 1.4em; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  #help-h { scroll-margin-top: 16px; }
+
+  /* the red 911 line at the very bottom of the page (owner, 2026-10-16) */
+  .sos { background: #C10007; color: #FFFFFF; padding: 14px 16px max(14px, env(safe-area-inset-bottom)); }
+  .sos-inner { max-width: 900px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  .sos strong { color: inherit; font-size: 17px; }
+  .sos .sos-call { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px; border: 2px solid #FFFFFF; border-radius: var(--radius);
+    color: #FFFFFF; font-weight: 600; text-decoration: none; }
+  .sos a { color: #FFFFFF; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .sos { background: #B91C1C; } }
+  :root[data-theme="dark"] .sos { background: #B91C1C; }
 
   /* share */
   .share { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
@@ -121,6 +145,9 @@
     body { padding-bottom: 0; }
     .theme-toggle, .back, .noprint { display: none !important; }
     .card, .banner { break-inside: avoid; }
+    .sos, :root[data-theme="dark"] .sos, :root:not([data-theme="light"]) .sos { background: #FFF; color: #C10007; border-top: 2px solid #C10007; }
+    .sos .sos-call, .sos a { color: #C10007; border-color: #C10007; }
+    .guide .glowy, .guide .side { filter: none; }
   }
 </style>
 </head>
@@ -135,42 +162,45 @@
 </header>
 
 <main class="wrap">
-  <section class="banner stop" aria-labelledby="help-h">
-    <h2 id="help-h">Get help now</h2>
-    <p><strong>Call 911</strong> if any of these happen. Breathing exercises are for worry and panic feelings, not for these:</p>
-    <ul>
-      <li>Chest pain during or after exercise, or pain spreading to the arm, jaw or back</li>
-      <li>Fainting or passing out (not just feeling dizzy)</li>
-      <li>Trouble breathing that isn't getting better, blue lips or fingertips, or wheezing or noisy breathing</li>
-      <li>Slurred speech, confusion or trouble moving</li>
-      <li>Swelling of the face or throat, or hives</li>
-      <li>They may have taken pills or something harmful</li>
-      <li>Chest pain, a racing heart or feeling faint in a child with a heart condition or a family history of sudden heart death</li>
-      <li>Anyone is in danger</li>
-    </ul>
-    <p><strong>Thinking about hurting yourself or ending your life?</strong> You are not alone, and help is there right now, day or night:</p>
-    <div class="calls">
-      <a class="call" href="tel:911">Call 911</a>
-      <a class="call" href="tel:988">Call 988</a>
-      <a class="call" href="sms:988">Text 988</a>
-      <a class="call" href="sms:741741?&amp;body=HOME">Text HOME to 741741</a>
-    </div>
-    <p class="hint" style="color:inherit">988 is the Suicide &amp; Crisis Lifeline. Call 911 if someone has already been hurt or is in immediate danger.</p>
-  </section>
-
   <section class="card" aria-labelledby="breathe-h">
     <h2 id="breathe-h">Breathe with the square</h2>
     <p class="hint" style="margin:0 0 14px">Feeling panicky or really worried? Slow breathing may help your body feel calmer. Pick a pattern, press Start and follow along. Breathe gently; there's no wrong way to do this.</p>
     <div class="patterns noprint" role="radiogroup" aria-label="Breathing pattern" id="patterns"></div>
     <div class="guide">
-      <svg viewBox="0 0 200 200" aria-hidden="true" id="art">
-        <rect class="track" x="30" y="30" width="140" height="140" rx="6" id="track"></rect>
-        <line class="side" id="side" x1="30" y1="170" x2="30" y2="170"></line>
-        <circle class="bubble" id="bubble" cx="100" cy="100" r="28" style="display:none"></circle>
-        <circle class="dot" id="dot" cx="30" cy="170" r="11"></circle>
+      <svg viewBox="0 0 260 260" aria-hidden="true" id="art">
+        <defs>
+          <!-- Fixed area: a flat side line has zero height, so a size-relative filter would erase it. -->
+          <filter id="glow" filterUnits="userSpaceOnUse" x="0" y="0" width="260" height="260"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <g id="boxart">
+          <rect class="track" x="50" y="50" width="160" height="160" rx="18"></rect>
+          <rect class="inner" x="62" y="62" width="136" height="136" rx="10"></rect>
+          <line class="side" id="side0" x1="50" y1="210" x2="50" y2="210"></line>
+          <line class="side" id="side1" x1="50" y1="50" x2="50" y2="50"></line>
+          <line class="side" id="side2" x1="210" y1="50" x2="210" y2="50"></line>
+          <line class="side" id="side3" x1="210" y1="210" x2="210" y2="210"></line>
+          <circle class="pip" id="pip0" cx="50" cy="210" r="6"></circle>
+          <circle class="pip" id="pip1" cx="50" cy="50" r="6"></circle>
+          <circle class="pip" id="pip2" cx="210" cy="50" r="6"></circle>
+          <circle class="pip" id="pip3" cx="210" cy="210" r="6"></circle>
+          <text class="lbl" id="lbl0" transform="translate(30 130) rotate(-90)" text-anchor="middle"></text>
+          <text class="lbl" id="lbl1" x="130" y="36" text-anchor="middle"></text>
+          <text class="lbl" id="lbl2" transform="translate(230 130) rotate(90)" text-anchor="middle"></text>
+          <text class="lbl" id="lbl3" x="130" y="234" text-anchor="middle"></text>
+        </g>
+        <g id="circleart" style="display:none">
+          <rect class="target" x="50" y="50" width="160" height="160" rx="18"></rect>
+          <rect class="bubble" id="bubble" x="98" y="98" width="64" height="64" rx="8"></rect>
+          <text class="lbl" id="lblIn" x="130" y="36" text-anchor="middle"></text>
+          <text class="lbl" id="lblOut" x="130" y="234" text-anchor="middle"></text>
+        </g>
+        <text class="ctr-count" id="count" x="130" y="134" text-anchor="middle"></text>
+        <text class="ctr-word idle" id="phase" x="130" y="166" text-anchor="middle">Ready when you are</text>
+        <g id="dotg">
+          <circle class="halo" id="halo" cx="50" cy="210" r="15"></circle>
+          <circle class="dot glowy" id="dot" cx="50" cy="210" r="12" filter="url(#glow)"></circle>
+        </g>
       </svg>
-      <p class="phase" id="phase">Ready when you are</p>
-      <p class="count" id="count" aria-hidden="true"></p>
       <p class="sr-only" id="live" aria-live="polite"></p>
       <div class="btns noprint">
         <button class="btn" type="button" id="go">Start</button>
@@ -229,6 +259,29 @@
       </div>
     </div>
   </section>
+
+  <section class="banner stop" aria-labelledby="help-h">
+    <h2 id="help-h">Get help now</h2>
+    <p><strong>Call 911</strong> if any of these happen. Breathing exercises are for worry and panic feelings, not for these:</p>
+    <ul>
+      <li>Chest pain during or after exercise, or pain spreading to the arm, jaw or back</li>
+      <li>Fainting or passing out (not just feeling dizzy)</li>
+      <li>Trouble breathing that isn't getting better, blue lips or fingertips, or wheezing or noisy breathing</li>
+      <li>Slurred speech, confusion or trouble moving</li>
+      <li>Swelling of the face or throat, or hives</li>
+      <li>They may have taken pills or something harmful</li>
+      <li>Chest pain, a racing heart or feeling faint in a child with a heart condition or a family history of sudden heart death</li>
+      <li>Anyone is in danger</li>
+    </ul>
+    <p><strong>Thinking about hurting yourself or ending your life?</strong> You are not alone, and help is there right now, day or night:</p>
+    <div class="calls">
+      <a class="call" href="tel:911">Call 911</a>
+      <a class="call" href="tel:988">Call 988</a>
+      <a class="call" href="sms:988">Text 988</a>
+      <a class="call" href="sms:741741?&amp;body=HOME">Text HOME to 741741</a>
+    </div>
+    <p class="hint" style="color:inherit">988 is the Suicide &amp; Crisis Lifeline. Call 911 if someone has already been hurt or is in immediate danger.</p>
+  </section>
 </main>
 
 <footer class="band">
@@ -242,6 +295,14 @@
     <p class="sprite-credit"><a href="credits.html">Credits</a><span class="gh-link" hidden> · <a href="https://github.com/christianrada-do/christianrada-do.github.io">Source code on GitHub</a></span></p>
   </div>
 </footer>
+
+<aside class="sos" aria-label="Emergency">
+  <div class="sos-inner">
+    <strong>Emergency?</strong>
+    <a class="sos-call" href="tel:911">Call 911</a>
+    <a href="#help-h">When to get help</a>
+  </div>
+</aside>
 
 <script>
 "use strict";
@@ -268,8 +329,14 @@ const WORDS = { in: "Breathe in", hold: "Hold", out: "Breathe out" };
 const KEY = "peds-tools-breathing-pattern";
 
 // Corners of the square, travelled in order: up the left side, across the top, down the right, back along the bottom.
-const CORNERS = [[30, 170], [30, 30], [170, 30], [170, 170]];
-const R_MIN = 28, R_MAX = 70;
+const CORNERS = [[50, 210], [50, 50], [210, 50], [210, 210]];
+// No-hold patterns: a square that grows on "breathe in" and shrinks on "breathe out" (half-widths).
+const R_MIN = 32, R_MAX = 80;
+function sizeSquare(h) {
+  const el = $("bubble"), s = (2 * h).toFixed(1), o = (130 - h).toFixed(1);
+  el.setAttribute("x", o); el.setAttribute("y", o); el.setAttribute("width", s); el.setAttribute("height", s);
+  el.setAttribute("rx", (h * 0.22).toFixed(1));
+}
 const reduce = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
 
 let key = DEFAULT;
@@ -294,32 +361,55 @@ function fmt(t) { const s = Math.floor(t); return Math.floor(s / 60) + ":" + Str
 
 function elapsed() { return (doneMs + (running ? performance.now() - startAt : 0)) / 1000; }
 
+function show(id, on) { $(id).style.display = on ? "" : "none"; }   // SVG elements have no .hidden property
+const label = ph => WORDS[ph[0]] + " · " + ph[1];
+
 function draw(t, started) {
   const p = PATTERNS[key], box = p.phases.length === 4;
-  $("track").setAttribute("opacity", box ? 1 : 0.35);
-  // SVG elements have no .hidden property, so all three are shown and hidden through style.display.
-  $("bubble").style.display = box ? "none" : ""; $("dot").style.display = box ? "" : "none"; $("side").style.display = box ? "" : "none";
+  show("boxart", box); show("dotg", box); show("circleart", !box);
+  if (box) p.phases.forEach((ph, k) => { $("lbl" + k).textContent = label(ph); });
+  else { $("lblIn").textContent = label(p.phases[0]); $("lblOut").textContent = label(p.phases[1]); }
   if (!started) {
-    $("phase").textContent = "Ready when you are"; $("count").textContent = ""; $("note").textContent = "";
-    $("stats").textContent = "0 rounds · 0:00";
-    $("dot").setAttribute("cx", 30); $("dot").setAttribute("cy", 170);
-    $("side").setAttribute("x2", 30); $("side").setAttribute("y2", 170);
-    $("bubble").setAttribute("r", R_MIN);
+    $("phase").textContent = "Ready when you are"; $("phase").classList.add("idle"); $("count").textContent = "";
+    $("note").textContent = ""; $("stats").textContent = "0 rounds · 0:00";
+    for (let k = 0; k < 4; k++) {
+      const c = CORNERS[k];
+      ["x1", "x2"].forEach(a => $("side" + k).setAttribute(a, c[0])); ["y1", "y2"].forEach(a => $("side" + k).setAttribute(a, c[1]));
+      $("side" + k).classList.remove("done"); $("side" + k).removeAttribute("filter");
+      $("pip" + k).classList.remove("on"); $("lbl" + k).classList.remove("on");
+    }
+    $("lblIn").classList.remove("on"); $("lblOut").classList.remove("on");
+    ["cx", "cy"].forEach((a, n) => { $("dot").setAttribute(a, CORNERS[0][n]); $("halo").setAttribute(a, CORNERS[0][n]); });
+    $("halo").classList.remove("pulse");
+    sizeSquare(R_MIN);
     return;
   }
   const s = stateAt(p, t);
   // Reduced motion: move in one-second steps instead of gliding.
   const f = reduce.matches ? s.sec / s.len : s.progress;
   if (box) {
+    // Sides and corner pips follow the phase (not the dot), so they reset at every new round.
+    for (let k = 0; k < 4; k++) {
+      const a = CORNERS[k], b = CORNERS[(k + 1) % 4], el = $("side" + k);
+      const g = k < s.i ? 1 : k === s.i ? f : 0;
+      el.setAttribute("x1", a[0]); el.setAttribute("y1", a[1]);
+      el.setAttribute("x2", (a[0] + (b[0] - a[0]) * g).toFixed(1)); el.setAttribute("y2", (a[1] + (b[1] - a[1]) * g).toFixed(1));
+      el.classList.toggle("done", k < s.i);
+      if (k === s.i && !reduce.matches) el.setAttribute("filter", "url(#glow)"); else el.removeAttribute("filter");
+      $("pip" + k).classList.toggle("on", k <= s.i);
+      $("lbl" + k).classList.toggle("on", k === s.i);
+    }
     const a = CORNERS[s.i], b = CORNERS[(s.i + 1) % 4];
-    const x = a[0] + (b[0] - a[0]) * f, y = a[1] + (b[1] - a[1]) * f;
-    $("dot").setAttribute("cx", x.toFixed(1)); $("dot").setAttribute("cy", y.toFixed(1));
-    $("side").setAttribute("x1", a[0]); $("side").setAttribute("y1", a[1]);
-    $("side").setAttribute("x2", x.toFixed(1)); $("side").setAttribute("y2", y.toFixed(1));
+    const x = (a[0] + (b[0] - a[0]) * f).toFixed(1), y = (a[1] + (b[1] - a[1]) * f).toFixed(1);
+    $("dot").setAttribute("cx", x); $("dot").setAttribute("cy", y);
+    $("halo").setAttribute("cx", x); $("halo").setAttribute("cy", y);
+    $("halo").classList.toggle("pulse", s.kind === "hold" && !reduce.matches);
   } else {
     const r = s.kind === "in" ? R_MIN + (R_MAX - R_MIN) * f : R_MAX - (R_MAX - R_MIN) * f;
-    $("bubble").setAttribute("r", r.toFixed(1));
+    sizeSquare(r);
+    $("lblIn").classList.toggle("on", s.kind === "in"); $("lblOut").classList.toggle("on", s.kind === "out");
   }
+  $("phase").classList.remove("idle");
   $("phase").textContent = WORDS[s.kind];
   $("count").textContent = s.sec;
   $("stats").textContent = s.rounds + (s.rounds === 1 ? " round" : " rounds") + " · " + fmt(t);
