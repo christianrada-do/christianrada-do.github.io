@@ -67,7 +67,6 @@
 
   .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 40px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
   h2 { font-family: var(--serif); font-weight: 500; font-size: 1.5rem; color: var(--heading); margin: 0 0 10px; letter-spacing: -0.01em; }
-  h3 { font-family: var(--serif); font-weight: 500; font-size: 1.15rem; color: var(--heading); margin: 16px 0 6px; }
   .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
   .banner { border-radius: var(--radius); padding: 14px 16px; margin: 0 0 16px; border: 1px solid; }
   .banner.stop { background: var(--stop-bg); border: 2px solid var(--stop-border); color: var(--stop-text); }
@@ -82,9 +81,8 @@
   .btn.secondary { background: var(--panel); color: var(--heading); border-color: var(--border); }
   .btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
   button:focus-visible, a:focus-visible, input:focus-visible + label { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .caution { margin: 0 0 16px; padding: 6px 0 6px 12px; border-left: 3px solid var(--calm); color: var(--heading); font-size: 15px; line-height: 1.5; }
   .hint { font-size: 14.5px; margin: 6px 0 0; }
-  ul.tips { margin: 4px 0 0; padding-left: 1.2em; } ul.tips li { margin: 5px 0; }
-  ol.steps { margin: 4px 0 0; padding-left: 1.3em; } ol.steps li { margin: 3px 0; }
   [hidden] { display: none !important; }
 
   /* pattern picker */
@@ -170,7 +168,8 @@
 <main class="wrap">
   <section class="card" aria-labelledby="breathe-h">
     <h2 id="breathe-h">Breathe with the square</h2>
-    <p class="hint" style="margin:0 0 14px">Feeling panicky or really worried? Slow breathing may help your body feel calmer. Pick a pattern, press Start and follow along. Breathe gently; there's no wrong way to do this.</p>
+    <p class="caution">Feel dizzy, tingly or chest pain? Stop the box breathing and breathe normally.<br>
+      Have asthma, a heart condition, seizures or are pregnant? Use: No holding.</p>
     <div class="patterns noprint" role="radiogroup" aria-label="Breathing pattern" id="patterns"></div>
     <div class="guide">
       <svg viewBox="0 0 260 260" aria-hidden="true" id="art">
@@ -215,43 +214,6 @@
       <p class="stats noprint" id="stats">0 rounds · 0:00</p>
       <p class="note noprint" id="note"></p>
     </div>
-  </section>
-
-  <section class="card" aria-labelledby="how-h">
-    <h2 id="how-h">How to do it</h2>
-    <h3>The square (older kids, teens and parents)</h3>
-    <ol class="steps">
-      <li>Breathe in through your nose, counting to 4 (or 3)</li>
-      <li>Hold, counting to 4 (or 3)</li>
-      <li>Breathe out through your mouth, counting to 4 (or 3)</li>
-      <li>Hold, counting to 4 (or 3), then start again</li>
-    </ol>
-    <p class="hint">Counting to 3 is easier and works well for most kids. Counting to 4 is the classic square for teens and adults.</p>
-    <h3>Younger kids (easier, no holding)</h3>
-    <p style="margin:0">Breathe in like you're smelling a flower, counting to 3. Breathe out like you're blowing a bubble, counting to 3. A grown-up can do it with them.</p>
-    <h3>Don't like holding your breath?</h3>
-    <p style="margin:0">Breathe in for 4 and out for 6, with no holding. A longer breath out helps you relax.</p>
-    <h3>How long?</h3>
-    <p style="margin:0">Start with about 1 minute. Keep going up to about 5 minutes if it's helping, and stop whenever you feel calmer.</p>
-  </section>
-
-  <section class="card" aria-labelledby="safe-h">
-    <h2 id="safe-h">Keep it gentle</h2>
-    <ul class="tips">
-      <li>Breathe softly and normally. Don't force big, deep breaths.</li>
-      <li>Feeling a little lightheaded or dizzy is common. Stop, breathe normally and rest.</li>
-      <li>Skip the holds if you have asthma, a heart condition, seizures (epilepsy), or are pregnant. Slow breathing is still fine: use "No holding: in 4, out 6".</li>
-      <li>Stop and rest if you feel dizzy or faint, tingling in your hands or around your mouth, chest pain or tightness, more short of breath, a racing or pounding heart, a headache or feel sick, or more panicky.</li>
-    </ul>
-  </section>
-
-  <section class="card" aria-labelledby="more-h">
-    <h2 id="more-h">Other ways to calm down</h2>
-    <h3>5-4-3-2-1</h3>
-    <p style="margin:0">Slowly name 5 things you can see, 4 things you can touch, 3 things you can hear, 2 things you can smell and 1 thing you can taste. It helps your mind come back to right now. For little kids: "Find 5 blue things in the room."</p>
-    <h3>Squeeze and let go</h3>
-    <p style="margin:0">Squeeze your fists tight like you're holding a lemon, hold for a few seconds, then let go and feel them relax. Do the same with your shoulders, then your legs.</p>
-    <p class="hint" style="margin-top:14px">If worry or panic keeps coming back, tell a trusted adult and your child's doctor. These are calming skills, not medical care, and they don't replace talking with a doctor, a counselor or a crisis line.</p>
   </section>
 
   <section class="card" aria-labelledby="share-h">
