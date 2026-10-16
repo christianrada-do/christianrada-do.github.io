@@ -69,6 +69,8 @@
   header.band .band-inner { padding-top: 64px; }
   .band h1 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.02em; font-size: clamp(2rem, 7vw, 2.9rem);
              line-height: 1.05; margin: 0 0 10px; color: var(--band-text); }
+  .band h1.with-logo { display: flex; align-items: center; gap: .35em; }
+  .band h1 .logo { width: 1.15em; height: 1.15em; flex: none; border-radius: .2em; }
   .band .by { margin: 0; color: var(--band-muted); }
   footer.band .band-inner { padding: 28px 16px 36px; font-size: 14px; }
   footer.band p { margin: 0 0 8px; color: var(--band-muted); }
@@ -129,7 +131,7 @@
 <header class="band">
   <div class="band-inner">
     <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch between light and dark mode"></button>
-    <h1>Pediatric Tools</h1>
+    <h1 class="with-logo"><img class="logo" src="favicon.svg" width="48" height="48" alt="">Pediatric Tools</h1>
     <p class="by">By Dr. Christian Rada, DO</p>
   </div>
 </header>
