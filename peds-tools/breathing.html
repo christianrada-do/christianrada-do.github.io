@@ -90,7 +90,7 @@
   .patterns input { position: absolute; opacity: 0; pointer-events: none; }
   .patterns label { display: block; margin: 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--soft);
     cursor: pointer; color: var(--heading); font-size: 15px; line-height: 1.3; min-height: 48px; }
-  .patterns label small { display: block; color: var(--body); font-size: 13px; }
+  .patterns label small { display: block; color: var(--body); font-size: 14px; }
   .patterns input:checked + label { background: var(--brand); color: var(--brand-text); border-color: var(--brand); }
   .patterns input:checked + label small { color: var(--brand-text); opacity: .8; }
 
@@ -107,15 +107,17 @@
   .guide .halo { fill: none; stroke: var(--calm); stroke-width: 2.5; opacity: .45; transform-box: fill-box; transform-origin: center; }
   .guide .halo.pulse { animation: halo 2s ease-in-out infinite; }
   @keyframes halo { 0%, 100% { transform: scale(1); opacity: .45; } 50% { transform: scale(1.45); opacity: .15; } }
-  .guide .bubble { fill: var(--calm-soft); stroke: var(--calm); stroke-width: 4; }
-  .guide .target { fill: none; stroke: var(--calm); stroke-width: 1.5; stroke-dasharray: 4 6; opacity: .45; }
-  .guide .lbl { font-family: var(--mono); font-size: 12.5px; letter-spacing: .03em; fill: var(--body); }
+  .guide .bubble { fill: var(--calm-soft); stroke: var(--calm); }   /* fill-opacity, stroke-width: set by sizeSquare() */
+  .guide .target { fill: none; stroke: var(--calm); stroke-width: 1.5; stroke-dasharray: 4 6; }   /* opacity: set by sizeSquare() */
+  .guide .lbl { font-family: var(--mono); font-size: 15px; letter-spacing: .02em; fill: var(--heading); }
   .guide .lbl.on { fill: var(--calm); }
-  .guide .ctr-count { font-family: var(--mono); font-size: 56px; fill: var(--calm); }
-  .guide .ctr-word { font-family: var(--serif); font-size: 23px; fill: var(--heading); }
-  .guide .ctr-word.idle { font-size: 15px; }
+  /* centre text: a thin halo in the square's colour keeps it crisp over the moving edge and dot */
+  .guide .ctr-count, .guide .ctr-word { paint-order: stroke; stroke: var(--calm-soft); stroke-width: 4px; stroke-linejoin: round; }
+  .guide .ctr-count { font-family: var(--mono); font-size: 60px; fill: var(--calm); }
+  .guide .ctr-word { font-family: var(--serif); font-size: 26px; fill: var(--heading); }
+  .guide .ctr-word.idle { font-size: 20px; }
   @media (prefers-reduced-motion: reduce) { .guide .glowy { filter: none; } .guide .halo.pulse { animation: none; } }
-  .stats { font-family: var(--mono); font-size: 13px; color: var(--body); margin: 14px 0 0; }
+  .stats { font-family: var(--mono); font-size: 15px; color: var(--heading); margin: 14px 0 0; }
   .note { margin: 10px 0 0; font-size: 15px; color: var(--heading); min-height: 1.4em; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   #help-h { scroll-margin-top: 16px; }
@@ -194,13 +196,13 @@
           <text class="lbl" id="lbl3" x="130" y="234" text-anchor="middle"></text>
         </g>
         <g id="circleart" style="display:none">
-          <rect class="target" x="50" y="50" width="160" height="160" rx="18"></rect>
-          <rect class="bubble" id="bubble" x="98" y="98" width="64" height="64" rx="8"></rect>
+          <rect class="target" id="target" x="50" y="50" width="160" height="160" rx="18"></rect>
+          <rect class="bubble glowy" id="bubble" x="98" y="98" width="64" height="64" rx="8" filter="url(#glow)"></rect>
           <text class="lbl" id="lblIn" x="130" y="36" text-anchor="middle"></text>
           <text class="lbl" id="lblOut" x="130" y="234" text-anchor="middle"></text>
         </g>
         <text class="ctr-count" id="count" x="130" y="134" text-anchor="middle"></text>
-        <text class="ctr-word idle" id="phase" x="130" y="166" text-anchor="middle">Ready when you are</text>
+        <text class="ctr-word idle" id="phase" x="130" y="166" text-anchor="middle"><tspan x="130" y="124">Ready when</tspan><tspan x="130" y="150">you are</tspan></text>
         <g id="dotg">
           <circle class="halo" id="halo" cx="50" cy="210" r="15"></circle>
           <circle class="dot glowy" id="dot" cx="50" cy="210" r="12" filter="url(#glow)"></circle>
@@ -303,10 +305,25 @@ const KEY = "peds-tools-breathing-pattern";
 const CORNERS = [[50, 210], [50, 50], [210, 50], [210, 210]];
 // No-hold patterns: a square that grows on "breathe in" and shrinks on "breathe out" (half-widths).
 const R_MIN = 32, R_MAX = 80;
+// Size h is eased by the caller; fill, border and the dashed outline follow it (t = 0 smallest, 1 full breath).
 function sizeSquare(h) {
-  const el = $("bubble"), s = (2 * h).toFixed(1), o = (130 - h).toFixed(1);
+  const el = $("bubble"), s = (2 * h).toFixed(1), o = (130 - h).toFixed(1), k = (h - R_MIN) / (R_MAX - R_MIN);
   el.setAttribute("x", o); el.setAttribute("y", o); el.setAttribute("width", s); el.setAttribute("height", s);
   el.setAttribute("rx", (h * 0.22).toFixed(1));
+  el.style.fillOpacity = (0.35 + 0.55 * k).toFixed(3);
+  el.style.strokeWidth = (3 + 2 * k).toFixed(2);
+  $("target").style.opacity = (0.45 + 0.45 * k).toFixed(3);
+}
+// A gentle start and finish to each breath, like real breathing (the phase still lasts exactly its seconds).
+const ease = f => (1 - Math.cos(Math.PI * f)) / 2;
+function idleText() {
+  const el = $("phase");
+  el.textContent = "";
+  [["Ready when", 124], ["you are", 150]].forEach(([words, y]) => {
+    const ts = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+    ts.setAttribute("x", 130); ts.setAttribute("y", y); ts.textContent = words;
+    el.appendChild(ts);
+  });
 }
 const reduce = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
 
@@ -341,7 +358,7 @@ function draw(t, started) {
   if (box) p.phases.forEach((ph, k) => { $("lbl" + k).textContent = label(ph); });
   else { $("lblIn").textContent = label(p.phases[0]); $("lblOut").textContent = label(p.phases[1]); }
   if (!started) {
-    $("phase").textContent = "Ready when you are"; $("phase").classList.add("idle"); $("count").textContent = "";
+    idleText(); $("phase").classList.add("idle"); $("count").textContent = "";
     $("note").textContent = ""; $("stats").textContent = "0 rounds · 0:00";
     for (let k = 0; k < 4; k++) {
       const c = CORNERS[k];
@@ -376,7 +393,8 @@ function draw(t, started) {
     $("halo").setAttribute("cx", x); $("halo").setAttribute("cy", y);
     $("halo").classList.toggle("pulse", s.kind === "hold" && !reduce.matches);
   } else {
-    const r = s.kind === "in" ? R_MIN + (R_MAX - R_MIN) * f : R_MAX - (R_MAX - R_MIN) * f;
+    const e = reduce.matches ? f : ease(f);          // reduced motion: one-second steps, no easing
+    const r = s.kind === "in" ? R_MIN + (R_MAX - R_MIN) * e : R_MAX - (R_MAX - R_MIN) * e;
     sizeSquare(r);
     $("lblIn").classList.toggle("on", s.kind === "in"); $("lblOut").classList.toggle("on", s.kind === "out");
   }
