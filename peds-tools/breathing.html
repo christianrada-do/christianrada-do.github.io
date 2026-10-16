@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Box Breathing</title>
+<meta name="description" content="A calm-down tool for kids, teens and parents: breathe with the square during worry or panic.">
+<meta name="theme-color" content="#0D0D0C">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<script src="shared.js?v=3"></script>
+<script src="pets.js?v=5" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="fonts/karmina.css?v=2" rel="stylesheet">
+<style>
+  /* Same tokens as the hub and the other tools. */
+  :root {
+    --page: #F4F4F5; --panel: #FFFFFF; --soft: #FAFAFA;
+    --brand: #232323; --brand-text: #FFFFFF;
+    --band: #232323; --band-text: #FFFFFF; --band-muted: #A1A1AA;
+    --heading: #18181B; --body: #52525B; --border: #E4E4E7; --subtle: #F2F2F2;
+    --warn-bg: #FEF2F2; --warn-border: #FCA5A5; --warn-text: #7F1D1D;
+    --stop-bg: #FEF2F2; --stop-border: #E40014; --stop-text: #C10007;
+    --calm: #3F7D6E; --calm-soft: #E4F0EC;
+    --focus: #161616; --radius: 4px;
+    --serif: "Karmina", Georgia, serif;
+    --sans: "Karmina", Georgia, serif;
+    --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #141413; --panel: #1C1B19; --soft: #242320; --brand: #FAF9F6; --brand-text: #141413;
+      --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5;
+      --border: #3A3833; --subtle: #2C2B27; --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6;
+      --stop-bg: #2C1513; --stop-border: #DC2626; --stop-text: #FBD3CC; --calm: #8CC7B5; --calm-soft: #1F2D29; --focus: #FAF9F6;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #141413; --panel: #1C1B19; --soft: #242320; --brand: #FAF9F6; --brand-text: #141413;
+    --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5;
+    --border: #3A3833; --subtle: #2C2B27; --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6;
+    --stop-bg: #2C1513; --stop-border: #DC2626; --stop-text: #FBD3CC; --calm: #8CC7B5; --calm-soft: #1F2D29; --focus: #FAF9F6;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--page); color: var(--body); font: 16px/1.55 var(--sans); padding-bottom: 72px; }
+  strong, b { color: var(--heading); font-weight: 600; }
+  a { color: var(--heading); }
+  .band { background: var(--band); color: var(--band-text); }
+  .band-inner { max-width: 900px; margin: 0 auto; padding: 40px 16px 32px; position: relative; }
+  header.band .band-inner { padding-top: 64px; }
+  .band h1 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.02em; font-size: clamp(1.9rem, 6vw, 2.6rem); line-height: 1.08; margin: 0 0 10px; color: var(--band-text); }
+  .band .by { margin: 0; color: var(--band-muted); }
+  .back { position: absolute; top: 18px; left: 16px; color: var(--band-muted); font-size: 14px; }
+  .theme-toggle { position: absolute; top: 12px; right: 16px; min-height: 40px; padding: 6px 12px; font-family: var(--mono); font-size: 12px; font-weight: 500;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--band-text); background: transparent; border: 1px solid var(--band-muted); border-radius: var(--radius); cursor: pointer; }
+  footer.band .band-inner { padding: 28px 16px 36px; font-size: 13px; }
+  footer.band p { margin: 0 0 8px; color: var(--band-muted); }
+  footer.band a { color: inherit; text-underline-offset: 2px; }
+  footer.band .credit { margin-top: 14px; font-size: 14px; }
+  footer.band .sprite-credit { font-size: 12px; opacity: .8; }
+  .pixel-heart { vertical-align: -2px; margin: 0 2px; }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 40px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  h2 { font-family: var(--serif); font-weight: 500; font-size: 1.5rem; color: var(--heading); margin: 0 0 10px; letter-spacing: -0.01em; }
+  h3 { font-family: var(--serif); font-weight: 500; font-size: 1.15rem; color: var(--heading); margin: 16px 0 6px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .banner { border-radius: var(--radius); padding: 14px 16px; margin: 0 0 16px; border: 1px solid; }
+  .banner.stop { background: var(--stop-bg); border: 2px solid var(--stop-border); color: var(--stop-text); }
+  .banner h2 { color: inherit; font-size: 1.3rem; margin-bottom: 6px; }
+  .banner p { margin: 8px 0 4px; } .banner strong, .banner a { color: inherit; }
+  .banner ul { margin: 4px 0 0; padding-left: 1.2em; } .banner li { margin: 3px 0; }
+  .calls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .call { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px; border-radius: var(--radius); border: 1px solid var(--stop-border);
+    color: var(--stop-text); background: transparent; font-weight: 600; text-decoration: none; }
+  .btn { font: inherit; font-weight: 600; font-size: 16px; border-radius: var(--radius); padding: 10px 20px; min-height: 48px; border: 1px solid var(--brand);
+    background: var(--brand); color: var(--brand-text); cursor: pointer; }
+  .btn.secondary { background: var(--panel); color: var(--heading); border-color: var(--border); }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  button:focus-visible, a:focus-visible, input:focus-visible + label { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .hint { font-size: 14.5px; margin: 6px 0 0; }
+  ul.tips { margin: 4px 0 0; padding-left: 1.2em; } ul.tips li { margin: 5px 0; }
+  ol.steps { margin: 4px 0 0; padding-left: 1.3em; } ol.steps li { margin: 3px 0; }
+  [hidden] { display: none !important; }
+
+  /* pattern picker */
+  .patterns { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 18px; }
+  .patterns input { position: absolute; opacity: 0; pointer-events: none; }
+  .patterns label { display: block; margin: 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--soft);
+    cursor: pointer; color: var(--heading); font-size: 15px; line-height: 1.3; min-height: 48px; }
+  .patterns label small { display: block; color: var(--body); font-size: 13px; }
+  .patterns input:checked + label { background: var(--brand); color: var(--brand-text); border-color: var(--brand); }
+  .patterns input:checked + label small { color: var(--brand-text); opacity: .8; }
+
+  /* the breathing guide */
+  .guide { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .guide svg { width: min(78vw, 300px); height: auto; display: block; }
+  .guide .track { fill: none; stroke: var(--border); stroke-width: 6; }
+  .guide .side { stroke: var(--calm); stroke-width: 8; stroke-linecap: round; }
+  .guide .dot { fill: var(--calm); }
+  .guide .bubble { fill: var(--calm-soft); stroke: var(--calm); stroke-width: 4; }
+  .phase { font-family: var(--serif); font-size: clamp(1.8rem, 7vw, 2.4rem); color: var(--heading); margin: 14px 0 0; line-height: 1.1; min-height: 1.2em; }
+  .count { font-family: var(--mono); font-size: 2.6rem; color: var(--calm); margin: 2px 0 6px; min-height: 1.2em; line-height: 1.1; }
+  .stats { font-family: var(--mono); font-size: 13px; color: var(--body); margin: 10px 0 0; }
+  .note { margin: 10px 0 0; font-size: 15px; color: var(--heading); min-height: 1.4em; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* share */
+  .share { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
+  .share img { width: 200px; height: 200px; image-rendering: pixelated; background: #FFF; padding: 6px; border: 1px solid var(--border); border-radius: var(--radius); }
+  .share .addr { font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
+
+  @media print {
+    :root, :root[data-theme="dark"], :root[data-theme="light"], :root:not([data-theme="light"]) {
+      --page:#FFF; --panel:#FFF; --soft:#FFF; --subtle:#EEE; --heading:#000; --body:#222; --border:#999; --band:#FFF; --band-text:#000; --band-muted:#333;
+      --brand:#000; --brand-text:#FFF; --stop-bg:#FFF; --stop-border:#C10007; --stop-text:#C10007; --calm:#000; --calm-soft:#FFF;
+    }
+    body { padding-bottom: 0; }
+    .theme-toggle, .back, .noprint { display: none !important; }
+    .card, .banner { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<header class="band">
+  <div class="band-inner">
+    <a class="back" href="./">← Pediatric Tools</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch between light and dark mode"></button>
+    <h1>Box Breathing</h1>
+    <p class="by">By Dr. Christian Rada, DO · For kids, teens and parents</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="banner stop" aria-labelledby="help-h">
+    <h2 id="help-h">Get help now</h2>
+    <p><strong>Call 911</strong> if any of these happen. Breathing exercises are for worry and panic feelings, not for these:</p>
+    <ul>
+      <li>Chest pain during or after exercise, or pain spreading to the arm, jaw or back</li>
+      <li>Fainting or passing out (not just feeling dizzy)</li>
+      <li>Trouble breathing that isn't getting better, blue lips or fingertips, or wheezing or noisy breathing</li>
+      <li>Slurred speech, confusion or trouble moving</li>
+      <li>Swelling of the face or throat, or hives</li>
+      <li>They may have taken pills or something harmful</li>
+      <li>Chest pain, a racing heart or feeling faint in a child with a heart condition or a family history of sudden heart death</li>
+      <li>Anyone is in danger</li>
+    </ul>
+    <p><strong>Thinking about hurting yourself or ending your life?</strong> You are not alone, and help is there right now, day or night:</p>
+    <div class="calls">
+      <a class="call" href="tel:911">Call 911</a>
+      <a class="call" href="tel:988">Call 988</a>
+      <a class="call" href="sms:988">Text 988</a>
+      <a class="call" href="sms:741741?&amp;body=HOME">Text HOME to 741741</a>
+    </div>
+    <p class="hint" style="color:inherit">988 is the Suicide &amp; Crisis Lifeline. Call 911 if someone has already been hurt or is in immediate danger.</p>
+  </section>
+
+  <section class="card" aria-labelledby="breathe-h">
+    <h2 id="breathe-h">Breathe with the square</h2>
+    <p class="hint" style="margin:0 0 14px">Feeling panicky or really worried? Slow breathing may help your body feel calmer. Pick a pattern, press Start and follow along. Breathe gently; there's no wrong way to do this.</p>
+    <div class="patterns noprint" role="radiogroup" aria-label="Breathing pattern" id="patterns"></div>
+    <div class="guide">
+      <svg viewBox="0 0 200 200" aria-hidden="true" id="art">
+        <rect class="track" x="30" y="30" width="140" height="140" rx="6" id="track"></rect>
+        <line class="side" id="side" x1="30" y1="170" x2="30" y2="170"></line>
+        <circle class="bubble" id="bubble" cx="100" cy="100" r="28" style="display:none"></circle>
+        <circle class="dot" id="dot" cx="30" cy="170" r="11"></circle>
+      </svg>
+      <p class="phase" id="phase">Ready when you are</p>
+      <p class="count" id="count" aria-hidden="true"></p>
+      <p class="sr-only" id="live" aria-live="polite"></p>
+      <div class="btns noprint">
+        <button class="btn" type="button" id="go">Start</button>
+        <button class="btn secondary" type="button" id="reset">Reset</button>
+      </div>
+      <p class="stats noprint" id="stats">0 rounds · 0:00</p>
+      <p class="note noprint" id="note"></p>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="how-h">
+    <h2 id="how-h">How to do it</h2>
+    <h3>The square (older kids, teens and parents)</h3>
+    <ol class="steps">
+      <li>Breathe in through your nose, counting to 4 (or 3)</li>
+      <li>Hold, counting to 4 (or 3)</li>
+      <li>Breathe out through your mouth, counting to 4 (or 3)</li>
+      <li>Hold, counting to 4 (or 3), then start again</li>
+    </ol>
+    <p class="hint">Counting to 3 is easier and works well for most kids. Counting to 4 is the classic square for teens and adults.</p>
+    <h3>Younger kids (easier, no holding)</h3>
+    <p style="margin:0">Breathe in like you're smelling a flower, counting to 3. Breathe out like you're blowing a bubble, counting to 3. A grown-up can do it with them.</p>
+    <h3>Don't like holding your breath?</h3>
+    <p style="margin:0">Breathe in for 4 and out for 6, with no holding. A longer breath out helps you relax.</p>
+    <h3>How long?</h3>
+    <p style="margin:0">Start with about 1 minute. Keep going up to about 5 minutes if it's helping, and stop whenever you feel calmer.</p>
+  </section>
+
+  <section class="card" aria-labelledby="safe-h">
+    <h2 id="safe-h">Keep it gentle</h2>
+    <ul class="tips">
+      <li>Breathe softly and normally. Don't force big, deep breaths.</li>
+      <li>Feeling a little lightheaded or dizzy is common. Stop, breathe normally and rest.</li>
+      <li>Skip the holds if you have asthma, a heart condition, seizures (epilepsy), or are pregnant. Slow breathing is still fine: use "No holding: in 4, out 6".</li>
+      <li>Stop and rest if you feel dizzy or faint, tingling in your hands or around your mouth, chest pain or tightness, more short of breath, a racing or pounding heart, a headache or feel sick, or more panicky.</li>
+    </ul>
+  </section>
+
+  <section class="card" aria-labelledby="more-h">
+    <h2 id="more-h">Other ways to calm down</h2>
+    <h3>5-4-3-2-1</h3>
+    <p style="margin:0">Slowly name 5 things you can see, 4 things you can touch, 3 things you can hear, 2 things you can smell and 1 thing you can taste. It helps your mind come back to right now. For little kids: "Find 5 blue things in the room."</p>
+    <h3>Squeeze and let go</h3>
+    <p style="margin:0">Squeeze your fists tight like you're holding a lemon, hold for a few seconds, then let go and feel them relax. Do the same with your shoulders, then your legs.</p>
+    <p class="hint" style="margin-top:14px">If worry or panic keeps coming back, tell a trusted adult and your child's doctor. These are calming skills, not medical care, and they don't replace talking with a doctor, a counselor or a crisis line.</p>
+  </section>
+
+  <section class="card" aria-labelledby="share-h">
+    <h2 id="share-h">Share this page</h2>
+    <div class="share">
+      <img src="breathing-qr.png" width="200" height="200" alt="QR code that opens this page: christianrada-do.github.io/peds-tools/breathing.html">
+      <div>
+        <p style="margin:0 0 6px">Scan with a phone camera to open this page.</p>
+        <p class="addr" style="margin:0 0 12px">https://christianrada-do.github.io/peds-tools/breathing.html</p>
+        <div class="btns noprint" style="justify-content:flex-start"><button class="btn secondary" type="button" onclick="window.print()">Print this page</button></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="band">
+  <div class="band-inner">
+    <p>Sources, compiled and checked with OpenEvidence (2026-10-16): breathing for anxiety in children and teens (Kramer AC et al., J Clin Child Adolesc Psychol 2022; Obradović J et al., Dev Psychobiol 2021; Aranberri-Ruiz A et al., Int J Environ Res Public Health 2022; Schleicher D et al., Psychoneuroendocrinology 2024; Akdağ R et al., Sci Rep 2025); adults (Fincham GW et al., Sci Rep 2023, both studies; Leyro TM et al., Clin Psychol Rev 2021; Dujawara A et al., box breathing review, Appl Psychophysiol Biofeedback 2026); AACAP anxiety guideline (Walter HJ et al., J Am Acad Child Adolesc Psychiatry 2020). Pace and length: Dar S et al. (Sci Rep 2025); Mazur MD et al. (J Integr Complement Med 2024); Zuanazzi Cruz M et al. (Altern Ther Health Med 2020); Kasap M and Aydin GR (PLoS One 2025); Magnon V et al. (Sci Rep 2021); You M et al. (Int J Environ Res Public Health 2021). Safety: Cochrane reviews of breathing exercises (Jones M et al. and Barker NJ et al., 2013; Macêdo TMF et al., 2016); Szulczewski MT (PLoS One 2019); Harper V and Trayer J (Clin Exp Allergy 2022); Zou Y et al. (Am J Cardiol 2017); Xu Y and Fan Q (CNS Neurosci Ther 2022); Perales M et al. (JAMA 2017). When to get help: DSM-5-TR (APA 2022); O'Meara D (JAMA Pediatr 2023); Vasic K et al. (BMC Pediatr 2026); ACR Appropriateness Criteria, Chest Pain–Child (2026); AAP mental and behavioral health emergencies (Saidinejad M et al., Pediatrics 2023; Chun TH et al., Pediatrics 2016). Crisis lines: Suran M (JAMA 2022); King CA et al. (Curr Psychiatry Rep 2025); AAP suicide risk in adolescents (Hua LL et al., Pediatrics 2024); Cantrell P et al. (Pediatrics 2026). Grounding and muscle relaxation: Welfare-Wilson A et al. (J Psychiatr Ment Health Nurs 2021); Hammond J and Brown WJ (Trauma Violence Abuse 2026); Köse Kabakcıoğlu N and Ayaz-Alkaya S (J Pediatr Nurs 2024); Badr EA et al. (J Pediatr Nurs 2025). Slow breathing may help some people feel calmer; it is not a treatment for panic disorder.</p>
+    <p class="credit">Made with
+      <svg class="pixel-heart" viewBox="0 0 7 6" width="14" height="12" role="img" aria-label="love" shape-rendering="crispEdges">
+        <path fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
+      </svg>
+      <a href="https://claude.com/claude-code">Claude</a></p>
+    <p class="sprite-credit"><a href="credits.html">Credits</a><span class="gh-link" hidden> · <a href="https://github.com/christianrada-do/christianrada-do.github.io">Source code on GitHub</a></span></p>
+  </div>
+</footer>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+
+/* Breathing patterns. Each phase is [kind, seconds]; kind is "in", "hold" or "out".
+   Source: OpenEvidence (Snow), 2026-10-16: 3-3-3-3 box (5 breaths/min) is the better default for most
+   children (Dar S et al., Sci Rep 2025; Mazur MD et al., J Integr Complement Med 2024); 4-4-4-4 box for
+   teens and parents (Fincham GW et al., Sci Rep 2023; Kasap M, Aydin GR, PLoS One 2025); younger kids
+   (about 5 to 8 years) 3 in / 3 out with no holds, with an animated guide and a parent (Obradović J et al.,
+   Dev Psychobiol 2021; Zuanazzi Cruz M et al., Altern Ther Health Med 2020); no-hold option 4 in / 6 out
+   (Magnon V et al., Sci Rep 2021). Holds are skipped with asthma, heart conditions, epilepsy or pregnancy. */
+// medical-data  Source: OpenEvidence Snow 2026-10-16 (see the comment above and the page footer)
+const PATTERNS = {
+  box3: { name: "Box 3-3-3-3", who: "Most kids", phases: [["in", 3], ["hold", 3], ["out", 3], ["hold", 3]] },
+  box4: { name: "Box 4-4-4-4", who: "Teens and adults", phases: [["in", 4], ["hold", 4], ["out", 4], ["hold", 4]] },
+  easy: { name: "Easy: in 3, out 3", who: "Younger kids", phases: [["in", 3], ["out", 3]] },
+  long: { name: "No holding: in 4, out 6", who: "Skip the holds", phases: [["in", 4], ["out", 6]] },
+};
+const DEFAULT = "box3";
+// About 1 minute to start, up to about 5 minutes (You M et al. 2021; Magnon V et al. 2021; via OpenEvidence).
+const NOTES = [[300, "You've done about 5 minutes. Stop whenever you feel calmer."], [60, "Keep going if it helps. Stop whenever you feel calmer."]];
+const WORDS = { in: "Breathe in", hold: "Hold", out: "Breathe out" };
+const KEY = "peds-tools-breathing-pattern";
+
+// Corners of the square, travelled in order: up the left side, across the top, down the right, back along the bottom.
+const CORNERS = [[30, 170], [30, 30], [170, 30], [170, 170]];
+const R_MIN = 28, R_MAX = 70;
+const reduce = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
+
+let key = DEFAULT;
+try { const k = localStorage.getItem(KEY); if (PATTERNS[k]) key = k; } catch (e) {}
+let running = false, startAt = 0, doneMs = 0, lastPhase = -1, raf = 0, tick = 0, lock = null;
+
+function cycleSeconds(p) { return p.phases.reduce((s, ph) => s + ph[1], 0); }
+
+/* Where we are after t seconds: phase index, whole seconds into the phase, progress 0..1 and finished rounds. */
+function stateAt(p, t) {
+  const cyc = cycleSeconds(p);
+  const rounds = Math.floor(t / cyc);
+  let r = t - rounds * cyc, i = 0;
+  while (i < p.phases.length - 1 && r >= p.phases[i][1]) { r -= p.phases[i][1]; i++; }
+  const len = p.phases[i][1];
+  return { i, kind: p.phases[i][0], len, sec: Math.min(len, Math.floor(r) + 1), progress: Math.min(1, r / len), rounds };
+}
+
+function noteFor(t) { for (const [at, text] of NOTES) if (t >= at) return text; return ""; }
+
+function fmt(t) { const s = Math.floor(t); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+
+function elapsed() { return (doneMs + (running ? performance.now() - startAt : 0)) / 1000; }
+
+function draw(t, started) {
+  const p = PATTERNS[key], box = p.phases.length === 4;
+  $("track").setAttribute("opacity", box ? 1 : 0.35);
+  // SVG elements have no .hidden property, so all three are shown and hidden through style.display.
+  $("bubble").style.display = box ? "none" : ""; $("dot").style.display = box ? "" : "none"; $("side").style.display = box ? "" : "none";
+  if (!started) {
+    $("phase").textContent = "Ready when you are"; $("count").textContent = ""; $("note").textContent = "";
+    $("stats").textContent = "0 rounds · 0:00";
+    $("dot").setAttribute("cx", 30); $("dot").setAttribute("cy", 170);
+    $("side").setAttribute("x2", 30); $("side").setAttribute("y2", 170);
+    $("bubble").setAttribute("r", R_MIN);
+    return;
+  }
+  const s = stateAt(p, t);
+  // Reduced motion: move in one-second steps instead of gliding.
+  const f = reduce.matches ? s.sec / s.len : s.progress;
+  if (box) {
+    const a = CORNERS[s.i], b = CORNERS[(s.i + 1) % 4];
+    const x = a[0] + (b[0] - a[0]) * f, y = a[1] + (b[1] - a[1]) * f;
+    $("dot").setAttribute("cx", x.toFixed(1)); $("dot").setAttribute("cy", y.toFixed(1));
+    $("side").setAttribute("x1", a[0]); $("side").setAttribute("y1", a[1]);
+    $("side").setAttribute("x2", x.toFixed(1)); $("side").setAttribute("y2", y.toFixed(1));
+  } else {
+    const r = s.kind === "in" ? R_MIN + (R_MAX - R_MIN) * f : R_MAX - (R_MAX - R_MIN) * f;
+    $("bubble").setAttribute("r", r.toFixed(1));
+  }
+  $("phase").textContent = WORDS[s.kind];
+  $("count").textContent = s.sec;
+  $("stats").textContent = s.rounds + (s.rounds === 1 ? " round" : " rounds") + " · " + fmt(t);
+  $("note").textContent = noteFor(t);
+  if (s.i !== lastPhase) { lastPhase = s.i; $("live").textContent = WORDS[s.kind] + ", " + s.len; }
+}
+
+function frame() { draw(elapsed(), true); if (running) raf = requestAnimationFrame(frame); }
+
+// Keep the screen on while running. A request still pending when Pause is pressed is released as soon
+// as it arrives, and only one request is in flight at a time.
+let asking = false;
+async function wake(on) {
+  try {
+    if (on && "wakeLock" in navigator && !lock && !asking) {
+      asking = true;
+      const got = await navigator.wakeLock.request("screen");
+      asking = false;
+      if (!running) { await got.release(); return; }
+      lock = got;
+      lock.addEventListener("release", () => { if (lock === got) lock = null; });
+    }
+    if (!on && lock) { const l = lock; lock = null; await l.release(); }
+  } catch (e) { asking = false; }
+}
+
+// Animation frames draw smoothly; a quarter-second timer keeps the words and count going where frames pause.
+function start() { running = true; startAt = performance.now(); $("go").textContent = "Pause"; wake(true); tick = setInterval(() => draw(elapsed(), true), 250); frame(); }
+function stop() { running = false; cancelAnimationFrame(raf); clearInterval(tick); }
+function pause() { doneMs += performance.now() - startAt; stop(); $("go").textContent = "Resume"; wake(false); }
+function reset() {
+  stop(); doneMs = 0; lastPhase = -1;
+  $("go").textContent = "Start"; $("live").textContent = ""; wake(false); draw(0, false);
+}
+
+function buildPicker() {
+  const box = $("patterns");
+  for (const [k, p] of Object.entries(PATTERNS)) {
+    const id = "pat-" + k;
+    const input = document.createElement("input");
+    input.type = "radio"; input.name = "pattern"; input.id = id; input.value = k; input.checked = k === key;
+    const label = document.createElement("label");
+    label.htmlFor = id; label.textContent = p.name;
+    const small = document.createElement("small"); small.textContent = p.who; label.appendChild(small);
+    input.addEventListener("change", () => {
+      key = k;
+      try { localStorage.setItem(KEY, k); } catch (e) {}
+      reset();
+    });
+    box.append(input, label);
+  }
+}
+
+$("go").addEventListener("click", () => (running ? pause() : start()));
+$("reset").addEventListener("click", reset);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && running) wake(true); });
+
+buildPicker();
+reset();
+</script>
+<script>window.PedsShared && PedsShared.init();</script>
+</body>
+</html>
