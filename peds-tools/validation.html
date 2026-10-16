@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Validation</title>
-<meta name="description" content="Clinician reference: levels of validation, validation statements and probing questions, with a random-line picker.">
+<meta name="description" content="Levels of validation, validation statements and probing questions, with a random-line picker.">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0D0D0C">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -73,9 +73,6 @@
     background: var(--brand); color: var(--brand-text); cursor: pointer; }
   .btn.secondary { background: var(--panel); color: var(--heading); border-color: var(--border); }
   .btns { display: flex; flex-wrap: wrap; gap: 10px; }
-  .pin-row { display: flex; gap: 10px; flex-wrap: wrap; }
-  .pin-row input { width: 7.5em; font-family: var(--mono); font-size: 22px; letter-spacing: .3em; }
-  .pin-msg { margin: 8px 0 0; min-height: 1.2em; color: var(--warn-text); font-weight: 600; }
   .src { font-size: 13px; margin-top: 14px; }
   [hidden] { display: none !important; }
 
@@ -108,7 +105,7 @@
       --page:#FFF; --panel:#FFF; --soft:#FFF; --subtle:#EEE; --heading:#000; --body:#222; --border:#999; --band:#FFF; --band-text:#000; --band-muted:#333;
       --brand:#000; --brand-text:#FFF; --warn-bg:#FFF; --warn-border:#999; --warn-text:#000;
     }
-    .theme-toggle, .back, #pin-form, .noprint { display: none !important; }
+    .theme-toggle, .back, .noprint { display: none !important; }
   }
 </style>
 </head>
@@ -118,22 +115,13 @@
     <a class="back" href="./">← Pediatric Tools</a>
     <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch between light and dark mode"></button>
     <h1>Validation</h1>
-    <p class="by">By Dr. Christian Rada, DO · Clinician reference</p>
+    <p class="by">By Dr. Christian Rada, DO · For families and clinicians</p>
   </div>
 </header>
 
 <main class="wrap">
-  <!-- PIN gate (same PIN and unlock as the hub). Not real security: the page is public. -->
-  <form class="card" id="pin-form" autocomplete="off">
-    <label for="pin">Enter the clinician PIN</label>
-    <div class="pin-row">
-      <input id="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" aria-describedby="pin-msg">
-      <button class="btn" type="submit">Unlock</button>
-    </div>
-    <p class="pin-msg" id="pin-msg" role="alert"></p>
-  </form>
-
-  <div id="tool" data-pin-gated hidden>
+  <!-- Public since 2026-10-16 (owner): no PIN. -->
+  <div id="tool">
     <section class="card" aria-labelledby="levels-h">
       <h2 id="levels-h">Levels of validation</h2>
       <ol class="levels" id="levels"></ol>
@@ -171,7 +159,6 @@
       <ol class="self" id="self"></ol>
     </section>
 
-    <div style="margin-top:8px"><button type="button" class="btn secondary" id="lock-btn">Lock clinician section</button></div>
   </div>
 </main>
 

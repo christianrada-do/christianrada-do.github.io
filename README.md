@@ -22,7 +22,7 @@ A home page for planners and calculators, with a section for families and a sect
 | Febrile Infant ≤ 56 Days (CHOP pathway) | Clinicians | [febrile-infant-chop.html](https://christianrada-do.github.io/peds-tools/febrile-infant-chop.html) |
 | Kawasaki Disease | Clinicians | [kawasaki.html](https://christianrada-do.github.io/peds-tools/kawasaki.html) |
 | IV Fluids and Sodium | Clinicians | [fluids.html](https://christianrada-do.github.io/peds-tools/fluids.html) |
-| Validation | Clinicians | [validation.html](https://christianrada-do.github.io/peds-tools/validation.html) |
+| Validation | Families + clinicians | [validation.html](https://christianrada-do.github.io/peds-tools/validation.html) |
 | Developmental Milestones | Families + clinicians | [milestones.html](https://christianrada-do.github.io/peds-tools/milestones.html) |
 | Box Breathing | Families | [breathing.html](https://christianrada-do.github.io/peds-tools/breathing.html) |
 | Twin Log | Family (family PIN) | [twin-log.html](https://christianrada-do.github.io/peds-tools/twin-log.html) |
