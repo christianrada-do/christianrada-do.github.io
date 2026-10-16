@@ -140,6 +140,12 @@
   .lbl { display:block; font-weight:600; color:var(--heading); margin:0 0 6px; font-size:15px; }
   .result-line { margin: 6px 0; font-size: 16px; }
   ul li { margin: 3px 0; }
+  /* footer sources: one short line, the full list behind "Show all sources" (owner, 2026-10-16) */
+  footer.band details.src-all { margin: 0 0 8px; color: var(--band-muted); }
+  footer.band details.src-all summary { cursor: pointer; display: inline-block; min-height: 32px; padding: 6px 0; text-decoration: underline; text-underline-offset: 2px; }
+  footer.band details.src-all summary:focus-visible { outline: 2px solid var(--band-text); outline-offset: 2px; }
+  footer.band details.src-all[open] summary { margin-bottom: 4px; }
+  @media print { footer.band .src-short { display: none; } }
 </style>
 </head>
 <body>
@@ -256,7 +262,10 @@
 
 <footer class="band">
   <div class="band-inner">
-    <p>Rules and numbers compiled and checked with OpenEvidence from the AAP clinical practice guideline on maintenance IV fluids (Feld LG et al., Pediatrics 2018), Holliday-Segar and the 4-2-1 rule, Powers KS (Pediatr Rev 2015), the IDSA infectious diarrhea guideline (2017), the RCH Paediatric Handbook (2021), Adrogué HJ and Madias NE (NEJM 2000; Intensive Care Med 1997; JAMA 2022), Sterns RH (NEJM 2015), Zieg J et al. (BMC Nephrol 2024) and Brown DH and Paloian NJ (Pediatr Rev 2023). Maintenance caps are institutional conventions, not AAP rules. This tool is clinical decision support and does not replace clinical judgment or your institution's protocol.</p>
+    <p class="src-short">Sources: AAP maintenance IV fluids guideline (Feld LG et al., Pediatrics 2018) and standard fluid and sodium references, checked with OpenEvidence. Maintenance caps are institutional conventions, not AAP rules. This tool is clinical decision support and does not replace clinical judgment or your institution's protocol.</p>
+    <details class="src-all"><summary>Show all sources</summary>
+      <p>Rules and numbers compiled and checked with OpenEvidence from the AAP clinical practice guideline on maintenance IV fluids (Feld LG et al., Pediatrics 2018), Holliday-Segar and the 4-2-1 rule, Powers KS (Pediatr Rev 2015), the IDSA infectious diarrhea guideline (2017), the RCH Paediatric Handbook (2021), Adrogué HJ and Madias NE (NEJM 2000; Intensive Care Med 1997; JAMA 2022), Sterns RH (NEJM 2015), Zieg J et al. (BMC Nephrol 2024) and Brown DH and Paloian NJ (Pediatr Rev 2023). Maintenance caps are institutional conventions, not AAP rules. This tool is clinical decision support and does not replace clinical judgment or your institution's protocol.</p>
+    </details>
     <p class="credit">Made with
       <svg class="pixel-heart" viewBox="0 0 7 6" width="14" height="12" role="img" aria-label="love" shape-rendering="crispEdges">
         <path fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
@@ -425,6 +434,9 @@ function render() {
 document.querySelectorAll('input[name="sex"], input[name="dehy"]').forEach(r => r.addEventListener("change", render));
 render();
 </script>
+<script>/* Print the full source list: open "Show all sources" while printing, then close it again. */
+(() => { let opened = []; addEventListener("beforeprint", () => { opened = [...document.querySelectorAll("details.src-all:not([open])")]; opened.forEach(d => { d.open = true; }); });
+  addEventListener("afterprint", () => { opened.forEach(d => { d.open = false; }); opened = []; }); })();</script>
 <script>window.PedsShared && PedsShared.init();</script>
 </body>
 </html>

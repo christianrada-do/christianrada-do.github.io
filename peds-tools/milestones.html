@@ -113,6 +113,12 @@
     body { padding-bottom: 0; }
     .theme-toggle, .back, .noprint { display: none !important; }
   }
+  /* footer sources: one short line, the full list behind "Show all sources" (owner, 2026-10-16) */
+  footer.band details.src-all { margin: 0 0 8px; color: var(--band-muted); }
+  footer.band details.src-all summary { cursor: pointer; display: inline-block; min-height: 32px; padding: 6px 0; text-decoration: underline; text-underline-offset: 2px; }
+  footer.band details.src-all summary:focus-visible { outline: 2px solid var(--band-text); outline-offset: 2px; }
+  footer.band details.src-all[open] summary { margin-bottom: 4px; }
+  @media print { footer.band .src-short { display: none; } }
 </style>
 </head>
 <body>
@@ -225,7 +231,10 @@
 
 <footer class="band">
   <div class="band-inner">
-    <p>Source: CDC, Learn the Signs. Act Early. Milestone checklists (2022 revision; Zubler JM et al., Evidence-Informed Milestones for Developmental Surveillance Tools, Pediatrics 2022), reproduced unchanged from <a href="https://www.cdc.gov/act-early/milestones/index.html" target="_blank" rel="noopener">cdc.gov/actearly</a>, where they are available free. Use here does not imply endorsement by CDC, HHS or the U.S. Government. Corrected age for preterm babies: AAP clinical report on monitoring preterm infants (Davis BE et al., Pediatrics 2023). Screening schedule, red flags and next steps: Bright Futures (AAP, 2017); AAP autism clinical report (Hyman SL et al., Pediatrics 2020); Koopman JJ et al. and Bybel M et al. (Am Fam Physician 2025); Lipkin PH et al. (IDEA, Pediatrics 2015); Scharf RJ et al. (Developmental Milestones, Pediatr Rev 2016); Bower C et al. (AAP hearing assessment, Pediatrics 2023); Rodan LH et al. (AAP genetic evaluation, Pediatrics 2025); Thomas KE et al. (Pediatrics 2025); Allen MC and Alexander GR (J Pediatr 1990); Morsan V et al. (Dev Med Child Neurol 2018); Goldshtein I et al. (Pediatr Res 2025). Compiled and checked with OpenEvidence. This tool supports developmental surveillance; it is not a screening test and does not replace clinical judgment.</p>
+    <p class="src-short">Source: CDC, Learn the Signs. Act Early. Milestone checklists (2022 revision; Zubler JM et al., Evidence-Informed Milestones for Developmental Surveillance Tools, Pediatrics 2022), reproduced unchanged from <a href="https://www.cdc.gov/act-early/milestones/index.html" target="_blank" rel="noopener">cdc.gov/actearly</a>, where they are available free. Use here does not imply endorsement by CDC, HHS or the U.S. Government. Other sources: AAP reports and peer-reviewed studies, checked with OpenEvidence. This tool supports developmental surveillance; it is not a screening test and does not replace clinical judgment.</p>
+    <details class="src-all"><summary>Show all sources</summary>
+      <p>Source: CDC, Learn the Signs. Act Early. Milestone checklists (2022 revision; Zubler JM et al., Evidence-Informed Milestones for Developmental Surveillance Tools, Pediatrics 2022), reproduced unchanged from <a href="https://www.cdc.gov/act-early/milestones/index.html" target="_blank" rel="noopener">cdc.gov/actearly</a>, where they are available free. Use here does not imply endorsement by CDC, HHS or the U.S. Government. Corrected age for preterm babies: AAP clinical report on monitoring preterm infants (Davis BE et al., Pediatrics 2023). Screening schedule, red flags and next steps: Bright Futures (AAP, 2017); AAP autism clinical report (Hyman SL et al., Pediatrics 2020); Koopman JJ et al. and Bybel M et al. (Am Fam Physician 2025); Lipkin PH et al. (IDEA, Pediatrics 2015); Scharf RJ et al. (Developmental Milestones, Pediatr Rev 2016); Bower C et al. (AAP hearing assessment, Pediatrics 2023); Rodan LH et al. (AAP genetic evaluation, Pediatrics 2025); Thomas KE et al. (Pediatrics 2025); Allen MC and Alexander GR (J Pediatr 1990); Morsan V et al. (Dev Med Child Neurol 2018); Goldshtein I et al. (Pediatr Res 2025). Compiled and checked with OpenEvidence. This tool supports developmental surveillance; it is not a screening test and does not replace clinical judgment.</p>
+    </details>
     <p class="credit">Made with
       <svg class="pixel-heart" viewBox="0 0 7 6" width="14" height="12" role="img" aria-label="love" shape-rendering="crispEdges">
         <path fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
@@ -484,6 +493,9 @@ function build() {
 
 build();
 </script>
+<script>/* Print the full source list: open "Show all sources" while printing, then close it again. */
+(() => { let opened = []; addEventListener("beforeprint", () => { opened = [...document.querySelectorAll("details.src-all:not([open])")]; opened.forEach(d => { d.open = true; }); });
+  addEventListener("afterprint", () => { opened.forEach(d => { d.open = false; }); opened = []; }); })();</script>
 <script>window.PedsShared && PedsShared.init();</script>
 </body>
 </html>

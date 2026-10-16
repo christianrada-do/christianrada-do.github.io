@@ -110,6 +110,12 @@
     }
     .theme-toggle, .back, #pin-form, .conv-card { display: none !important; }
   }
+  /* footer sources: one short line, the full list behind "Show all sources" (owner, 2026-10-16) */
+  footer.band details.src-all { margin: 0 0 8px; color: var(--band-muted); }
+  footer.band details.src-all summary { cursor: pointer; display: inline-block; min-height: 32px; padding: 6px 0; text-decoration: underline; text-underline-offset: 2px; }
+  footer.band details.src-all summary:focus-visible { outline: 2px solid var(--band-text); outline-offset: 2px; }
+  footer.band details.src-all[open] summary { margin-bottom: 4px; }
+  @media print { footer.band .src-short { display: none; } }
 </style>
 </head>
 <body>
@@ -242,7 +248,10 @@
 
 <footer class="band">
   <div class="band-inner">
-    <p>Doses compiled and checked with OpenEvidence from FDA drug labels (EMA for buccal midazolam), the ILAE therapeutic-drug-monitoring position paper (Epilepsia 2008), the AES status-epilepticus guideline (Epilepsy Curr 2016), the ESETT (NEJM 2019; pediatric analysis Lancet 2020) and RAMPART trials, and for infantile spasms the AAN/CNS guideline, UKISS, ICISS and the US consensus (NISC). Each medication lists its own sources. This tool is clinical decision support and does not replace the current product label or institutional protocol.</p>
+    <p class="src-short">Sources: FDA drug labels (EMA for buccal midazolam), the ILAE monitoring position paper, the AES status epilepticus guideline, the ESETT and RAMPART trials and, for infantile spasms, the AAN/CNS guideline and studies, checked with OpenEvidence. This tool is clinical decision support and does not replace the current product label or institutional protocol.</p>
+    <details class="src-all"><summary>Show all sources</summary>
+      <p>Doses compiled and checked with OpenEvidence from FDA drug labels (EMA for buccal midazolam), the ILAE therapeutic-drug-monitoring position paper (Epilepsia 2008), the AES status-epilepticus guideline (Epilepsy Curr 2016), the ESETT (NEJM 2019; pediatric analysis Lancet 2020) and RAMPART trials, and for infantile spasms the AAN/CNS guideline, UKISS, ICISS and the US consensus (NISC). Each medication lists its own sources. This tool is clinical decision support and does not replace the current product label or institutional protocol.</p>
+    </details>
     <p class="credit">Made with
       <svg class="pixel-heart" viewBox="0 0 7 6" width="14" height="12" role="img" aria-label="love" shape-rendering="crispEdges">
         <path fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
@@ -879,6 +888,9 @@ document.querySelectorAll('input[name="u"]').forEach(r => r.addEventListener("ch
   if ($("wt").value !== "") { $("wt").value = ""; $("pt-echo").textContent = "Unit changed. Please enter the weight again."; renderMaint(); renderBenzo(); renderRescue(); renderBridge(); renderIS(); $("wt").focus(); }
 }));
 </script>
+<script>/* Print the full source list: open "Show all sources" while printing, then close it again. */
+(() => { let opened = []; addEventListener("beforeprint", () => { opened = [...document.querySelectorAll("details.src-all:not([open])")]; opened.forEach(d => { d.open = true; }); });
+  addEventListener("afterprint", () => { opened.forEach(d => { d.open = false; }); opened = []; }); })();</script>
 <script>window.PedsShared && PedsShared.init();</script>
 </body>
 </html>

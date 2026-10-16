@@ -140,6 +140,12 @@
   .lbl { display:block; font-weight:600; color:var(--heading); margin:0 0 6px; font-size:15px; }
   .result-line { margin: 6px 0; font-size: 16px; }
   ul li { margin: 3px 0; }
+  /* footer sources: one short line, the full list behind "Show all sources" (owner, 2026-10-16) */
+  footer.band details.src-all { margin: 0 0 8px; color: var(--band-muted); }
+  footer.band details.src-all summary { cursor: pointer; display: inline-block; min-height: 32px; padding: 6px 0; text-decoration: underline; text-underline-offset: 2px; }
+  footer.band details.src-all summary:focus-visible { outline: 2px solid var(--band-text); outline-offset: 2px; }
+  footer.band details.src-all[open] summary { margin-bottom: 4px; }
+  @media print { footer.band .src-short { display: none; } }
 </style>
 </head>
 <body>
@@ -240,7 +246,10 @@
 
 <footer class="band">
   <div class="band-inner">
-    <p>Based on the Children's Hospital of Philadelphia (CHOP) <a href="https://www.chop.edu/clinical-pathway/kawasaki-disease-incomplete-kawasaki-disease-clinical-pathway">Kawasaki Disease or Incomplete Kawasaki Disease Clinical Pathway, Emergency Department and Inpatient</a> (adapted from the 2017 AHA scientific statement, McCrindle BW et al., Circulation 2017; last revised May 2025), summarized in our own words. Check the current CHOP pathway and your institution's protocol. This tool is clinical decision support and does not replace clinical judgment.</p>
+    <p class="src-short">Source: the CHOP <a href="https://www.chop.edu/clinical-pathway/kawasaki-disease-incomplete-kawasaki-disease-clinical-pathway">Kawasaki Disease Clinical Pathway</a> (adapted from the 2017 AHA scientific statement; last revised May 2025), summarized in our own words. Check the current CHOP pathway and your institution's protocol. This tool is clinical decision support and does not replace clinical judgment.</p>
+    <details class="src-all"><summary>Show all sources</summary>
+      <p>Based on the Children's Hospital of Philadelphia (CHOP) <a href="https://www.chop.edu/clinical-pathway/kawasaki-disease-incomplete-kawasaki-disease-clinical-pathway">Kawasaki Disease or Incomplete Kawasaki Disease Clinical Pathway, Emergency Department and Inpatient</a> (adapted from the 2017 AHA scientific statement, McCrindle BW et al., Circulation 2017; last revised May 2025), summarized in our own words. Check the current CHOP pathway and your institution's protocol. This tool is clinical decision support and does not replace clinical judgment.</p>
+    </details>
     <p class="credit">Made with
       <svg class="pixel-heart" viewBox="0 0 7 6" width="14" height="12" role="img" aria-label="love" shape-rendering="crispEdges">
         <path fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
@@ -384,6 +393,9 @@ function render() {
 document.querySelectorAll("#tool input").forEach(i => i.addEventListener(i.type === "checkbox" || i.type === "radio" ? "change" : "input", render));
 render();
 </script>
+<script>/* Print the full source list: open "Show all sources" while printing, then close it again. */
+(() => { let opened = []; addEventListener("beforeprint", () => { opened = [...document.querySelectorAll("details.src-all:not([open])")]; opened.forEach(d => { d.open = true; }); });
+  addEventListener("afterprint", () => { opened.forEach(d => { d.open = false; }); opened = []; }); })();</script>
 <script>window.PedsShared && PedsShared.init();</script>
 </body>
 </html>
