@@ -432,7 +432,12 @@
           if (m.ok) putPacket(m.packet);
           return openPacket(p.visit, m.message);
         }
+        // A clinician's device (PIN already entered here): open the clinic report straight away.
+        let clinician = false;
+        try { clinician = localStorage.getItem("peds-tools-clinician") === "1"; } catch (e) { /* storage off */ }
+        if (clinician) { location.replace("vanderbilt-clinic.html" + location.hash); return; }
         $("top-msg").textContent = t("resultLinkNote");
+        $("clinic-link").href = "vanderbilt-clinic.html" + location.hash;
         pendingItem = d.value;
         showFooter(); render();
         $("result-box").hidden = false;

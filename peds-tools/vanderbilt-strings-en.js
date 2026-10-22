@@ -77,6 +77,7 @@
     doctorSteps: "Copied. Now: 1. Open MyChart. 2. Start a message to your child's doctor. 3. Paste.",
     copyFallback: "Copy the text below and paste it.",
     startPacketHere: "This is my phone: start my packet here",
+    clinicianLink: "Clinician? Open the report",
     shareTitle: "Scan with a phone camera, or copy the link",
     hidePanel: "Close",
 
