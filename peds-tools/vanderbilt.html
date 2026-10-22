@@ -114,6 +114,18 @@
   .link { font-family: var(--mono); font-size: 12px; overflow-wrap: anywhere; margin: 8px 0 0; }
   .visit { font-family: var(--mono); color: var(--heading); }
 
+  /* packet checklist and sharing */
+  .rows { list-style: none; margin: 8px 0 0; padding: 0; }
+  .rows li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .rows .who { color: var(--heading); }
+  .rows .done::before { content: "✓ "; }
+  .rows .btn { min-height: 44px; padding: 8px 14px; }
+  .steps { margin: 12px 0 0; padding: 10px 12px; border-left: 3px solid var(--brand); color: var(--heading); }
+  input.wide { max-width: 100%; font-size: 16px; letter-spacing: .02em; text-transform: none; }
+  .qr { background: #FFFFFF; display: inline-block; padding: 0; line-height: 0; border: 1px solid var(--border); border-radius: var(--radius); }
+  .qr svg { width: min(78vw, 320px); height: auto; display: block; shape-rendering: crispEdges; }
+  #print-sheet { display: none; }
+
   @media (prefers-reduced-motion: reduce) { .bar span { transition: none; } }
   @media print {
     :root, :root[data-theme="dark"], :root[data-theme="light"], :root:not([data-theme="light"]) {
@@ -121,6 +133,11 @@
       --brand:#000; --brand-text:#FFF;
     }
     .theme-toggle, .back, .noprint { display: none !important; }
+    /* "Print or save PDF": only the result sheet */
+    body.print-result header, body.print-result main, body.print-result footer { display: none !important; }
+    body.print-result #print-sheet { display: block; padding: 24px; text-align: center; color: #000; }
+    #print-sheet .qr svg { width: 70mm; margin: 0 auto; }
+    #print-sheet .code { font-size: 18pt; }
   }
 </style>
 </head>
@@ -187,7 +204,10 @@
     <h2 data-t="doneTitle"></h2>
     <p data-t="doneIntro"></p>
     <p class="visit" id="done-visit"></p>
-    <div id="share-slot"></div>
+    <div class="btns">
+      <button type="button" class="btn" id="done-send" data-t="doneSendParent"></button>
+      <button type="button" class="btn secondary" id="done-print" data-t="donePrint"></button>
+    </div>
     <p><strong data-t="doneCode"></strong></p>
     <p class="code" id="done-code"></p>
     <p class="hint" data-t="doneCodeHint"></p>
@@ -195,8 +215,43 @@
     <p class="link" id="done-link"></p>
   </section>
 
+  <section class="card" id="s-packet" hidden>
+    <h2 data-t="packetTitle"></h2>
+    <p id="packet-intro"></p>
+    <ul class="rows" id="packet-rows"></ul>
+    <div class="btns">
+      <button type="button" class="btn" id="packet-doctor" data-t="sendDoctor"></button>
+      <button type="button" class="btn secondary" id="packet-show" data-t="showDoctor"></button>
+    </div>
+    <p class="steps" id="doctor-steps" role="status" hidden></p>
+    <label class="field" for="add-in" data-t="addByCode"></label>
+    <p class="hint" data-t="addByCodeHint"></p>
+    <input type="text" id="add-in" class="wide" autocomplete="off" autocapitalize="characters" spellcheck="false">
+    <div class="btns"><button type="button" class="btn secondary" id="add-go" data-t="addGo"></button></div>
+    <p class="msg" id="add-msg" role="status" aria-live="polite"></p>
+  </section>
+
+  <div class="btns" id="result-box" hidden><button type="button" class="btn" id="start-packet" data-t="startPacketHere"></button></div>
+
+  <section class="card" id="share-panel" hidden>
+    <h2 data-t="shareTitle"></h2>
+    <div class="qr" id="qr-box"></div>
+    <p class="link" id="share-text"></p>
+    <div class="btns">
+      <button type="button" class="btn secondary" id="share-copy" data-t="doneCopy"></button>
+      <button type="button" class="btn secondary" id="share-close" data-t="hidePanel"></button>
+    </div>
+  </section>
+
   <div class="btns noprint"><button type="button" class="btn secondary" id="clear-all" data-t="clear"></button></div>
 </main>
+
+<div id="print-sheet">
+  <div class="qr" id="print-qr"></div>
+  <p class="code" id="print-code"></p>
+  <p class="visit" id="print-visit"></p>
+  <p data-t="printLine"></p>
+</div>
 
 <footer class="band">
   <div class="band-inner">
@@ -214,6 +269,7 @@
 <script src="vanderbilt-forms.js?v=1"></script>
 <script src="vanderbilt-score.js?v=1"></script>
 <script src="vanderbilt-codes.js?v=1"></script>
+<script src="vendor/qrcode-generator-2.0.4.js"></script>
 <script src="vanderbilt-strings-en.js?v=1"></script>
 <script src="vanderbilt-page.js?v=1"></script>
 </body>

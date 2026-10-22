@@ -21,17 +21,34 @@
   document.querySelectorAll("[data-t]").forEach(el => { el.textContent = t(el.dataset.t); });
 
   // ---------- storage (every access guarded: the page works without it) ----------
-  function loadAll() {
+  // Two stores: drafts (one per visit and rater) and packets (one per visit, on the parent's phone).
+  // savedAt is local only, for the 90-day clear; it never goes into a link.
+  const PSTORE = "peds-tools-vanderbilt-packets";
+  function loadStore(key) {
     try {
-      const all = JSON.parse(localStorage.getItem(STORE) || "{}");
+      const all = JSON.parse(localStorage.getItem(key) || "{}");
       const now = Date.now();
       let changed = false;
       Object.keys(all).forEach(k => {
         if (!all[k] || typeof all[k].savedAt !== "number" || now - all[k].savedAt > MAX_AGE) { delete all[k]; changed = true; }
       });
-      if (changed) localStorage.setItem(STORE, JSON.stringify(all));
+      if (changed) localStorage.setItem(key, JSON.stringify(all));
       return all;
     } catch (e) { return {}; }
+  }
+  const loadAll = () => loadStore(STORE);
+  function getPacket(visit) {
+    const p = loadStore(PSTORE)[visit];
+    if (!p) return null;
+    delete p.savedAt;
+    return p;
+  }
+  function putPacket(p) {
+    try {
+      const all = loadStore(PSTORE);
+      all[p.visit] = Object.assign({}, p, { savedAt: Date.now() });
+      localStorage.setItem(PSTORE, JSON.stringify(all));
+    } catch (e) { /* storage off */ }
   }
   function save() {
     if (!st) return;
@@ -73,12 +90,21 @@
   }
 
   // ---------- screens ----------
+  let packetVisit = null; // set while the packet screen is shown
   function show(id) {
-    ["s-start", "s-setup", "s-question", "s-review", "s-done"].forEach(s => { $(s).hidden = s !== id; });
+    ["s-start", "s-setup", "s-question", "s-review", "s-done", "s-packet"].forEach(s => { $(s).hidden = s !== id; });
+    $("share-panel").hidden = true;
+    $("result-box").hidden = true;
   }
   function render() {
+    if (packetVisit) return renderPacket();
     if (!st) return renderStart();
-    if (st.submitted) return renderDone();
+    if (st.submitted) {
+      // A parent's finished form on the phone that holds the packet: show the packet.
+      const p = st.slot[0] === "P" && getPacket(st.visit);
+      if (p && p.raters[st.slot]) return openPacket(st.visit);
+      return renderDone();
+    }
     if (st.step === "setup") return renderSetup();
     if (st.step === "review") return renderReview();
     renderQuestion(st.step);
@@ -205,13 +231,23 @@
     const sc = S.score(C.formId(st.slot, st.kind), { answers: st.answers, sideEffects: st.sideEffects, medication: st.medication });
     if (!sc.ok) { $("review-msg").textContent = t("reviewError"); return; }
     $("review-msg").textContent = "";
-    st.submitted = true; save(); render();
+    st.submitted = true; save();
+    // A parent on the phone that holds the packet: add the result to it. Parent 1 starts the packet;
+    // a second parent on their own phone (no packet here) gets the done screen to send it back.
+    if (st.slot[0] === "P" && (st.slot === "P1" || getPacket(st.visit))) {
+      const p = getPacket(st.visit) || { visit: st.visit, kind: st.kind, sent: [], raters: {} };
+      const m = C.merge(p, resultObject());
+      if (m.ok) { putPacket(m.packet); return openPacket(st.visit, m.message); }
+      $("top-msg").textContent = m.message;
+    }
+    render();
   });
-
-  function resultBytes() {
-    return C.encodeResult({ visit: st.visit, kind: st.kind, slot: st.slot, teacherRole: st.teacherRole, timeKnown: st.timeKnown,
-      medication: st.medication, answers: st.answers, sideEffects: st.sideEffects });
+  function resultObject() {
+    return { visit: st.visit, kind: st.kind, slot: st.slot, teacherRole: st.teacherRole, timeKnown: st.timeKnown,
+      medication: st.medication, answers: st.answers, sideEffects: st.sideEffects };
   }
+
+  function resultBytes() { return C.encodeResult(resultObject()); }
   function renderDone() {
     show("s-done");
     const bytes = resultBytes();
@@ -225,34 +261,182 @@
     if (navigator.clipboard) navigator.clipboard.writeText(text).then(ok, () => selectLink());
     else selectLink();
   });
-  function selectLink() { const r = document.createRange(); r.selectNodeContents($("done-link")); getSelection().removeAllRanges(); getSelection().addRange(r); }
+  function selectLink(id) { const r = document.createRange(); r.selectNodeContents($(id || "done-link")); getSelection().removeAllRanges(); getSelection().addRange(r); }
+
+  // Teacher (or a parent on their own phone): send the result back, or print it.
+  $("done-send").addEventListener("click", () => {
+    const link = C.toLink(resultBytes());
+    shareText(t("msgToParent", { visit: C.formatVisitCode(st.visit), link: link }), link);
+  });
+  $("done-print").addEventListener("click", () => {
+    const bytes = resultBytes();
+    drawQR($("print-qr"), C.toLink(bytes), t("doneQrLabel"));
+    $("print-code").textContent = C.toTyped(bytes);
+    $("print-visit").textContent = t("doneVisit", { visit: C.formatVisitCode(st.visit) });
+    document.body.classList.add("print-result");
+    window.print();
+  });
+  addEventListener("afterprint", () => document.body.classList.remove("print-result"));
+
+  // ---------- QR codes (vendor/qrcode-generator, error correction M, 4-module quiet zone) ----------
+  function drawQR(box, text, label) {
+    const q = qrcode(0, "M");
+    q.addData(text); q.make();
+    const n = q.getModuleCount(), size = n + 8, NS = "http://www.w3.org/2000/svg";
+    let d = "";
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (q.isDark(y, x)) d += "M" + (x + 4) + " " + (y + 4) + "h1v1h-1z";
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 " + size + " " + size);
+    svg.setAttribute("role", "img"); svg.setAttribute("aria-label", label);
+    const bg = document.createElementNS(NS, "rect");
+    bg.setAttribute("width", size); bg.setAttribute("height", size); bg.setAttribute("fill", "#FFFFFF");
+    const path = document.createElementNS(NS, "path");
+    path.setAttribute("d", d); path.setAttribute("fill", "#000000");
+    svg.append(bg, path);
+    box.textContent = ""; box.append(svg);
+  }
+
+  // Share sheet when the phone has one; otherwise the panel with a QR of the link and Copy.
+  function shareText(text, link) {
+    if (navigator.share) { navigator.share({ text: text }).catch(() => {}); return; }
+    showPanel(text, link);
+  }
+  function showPanel(text, link) {
+    drawQR($("qr-box"), link, t("doneQrLabel"));
+    $("share-text").textContent = text;
+    $("share-panel").hidden = false;
+    $("share-panel").scrollIntoView({ block: "nearest" });
+  }
+  $("share-copy").addEventListener("click", () => {
+    const text = $("share-text").textContent;
+    const ok = () => { $("share-copy").textContent = t("doneCopied"); setTimeout(() => { $("share-copy").textContent = t("doneCopy"); }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(ok, () => selectLink("share-text"));
+    else selectLink("share-text");
+  });
+  $("share-close").addEventListener("click", () => { $("share-panel").hidden = true; });
+
+  // ---------- the parent's packet ----------
+  const SLOTS = ["P1", "P2", "T1", "T2"];
+  function packetLink(p) { return C.toLink(C.encodePacket(p)); }
+  function openPacket(visit, message) {
+    packetVisit = visit;
+    history.replaceState(null, "", "#visit-" + visit); // only the visit code; the answers stay in storage
+    render();
+    $("top-msg").textContent = message || "";
+    $("add-msg").textContent = "";
+  }
+  function renderPacket() {
+    const p = getPacket(packetVisit);
+    if (!p) { packetVisit = null; return render(); }
+    show("s-packet");
+    st = null; showFooterFor(p.kind, "P1");
+    $("packet-intro").textContent = t("packetIntro", { visit: C.formatVisitCode(p.visit) });
+    const ul = $("packet-rows");
+    ul.textContent = "";
+    SLOTS.forEach(slot => {
+      const li = document.createElement("li"), who = document.createElement("span");
+      who.className = "who";
+      const r = p.raters[slot], sent = p.sent.indexOf(slot) >= 0, name = t("slot" + slot);
+      const btn = (key, fn, primary) => { const b = document.createElement("button"); b.type = "button"; b.className = "btn" + (primary ? "" : " secondary"); b.textContent = t(key); b.addEventListener("click", fn); return b; };
+      li.append(who);
+      if (r) { who.textContent = t("rowDone", { who: C.raterLabel(r) }); who.classList.add("done"); }
+      else {
+        who.textContent = t(sent ? "rowWaiting" : "rowNotSent", { who: name });
+        const invite = () => sendInvite(p, slot);
+        if (slot[0] === "P") li.append(btn("fillHere", () => fillHere(p, slot), true), btn(sent ? "resend" : "sendLink", invite));
+        else li.append(btn(sent ? "resend" : "send", invite, !sent));
+      }
+      ul.append(li);
+    });
+  }
+  function sendInvite(p, slot) {
+    const link = C.toLink(C.encodeInvite({ visit: p.visit, kind: p.kind, slot: slot }));
+    if (p.sent.indexOf(slot) < 0) { p.sent.push(slot); putPacket(p); }
+    renderPacket();
+    shareText(t(slot[0] === "T" ? "msgTeacher" : "msgParent2", { link: link }), link);
+  }
+  function fillHere(p, slot) {
+    packetVisit = null;
+    begin(p.visit, p.kind, slot);
+  }
+  $("packet-doctor").addEventListener("click", () => {
+    const p = getPacket(packetVisit), link = packetLink(p);
+    const text = t("msgDoctor", { visit: C.formatVisitCode(p.visit), link: link });
+    const steps = $("doctor-steps");
+    const done = () => { steps.textContent = t("doctorSteps"); steps.hidden = false; };
+    const fallback = () => { steps.textContent = t("copyFallback"); steps.hidden = false; showPanel(text, link); };
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, fallback);
+    else fallback();
+  });
+  $("packet-show").addEventListener("click", () => {
+    const link = packetLink(getPacket(packetVisit));
+    drawQR($("qr-box"), link, t("packetQrLabel"));
+    $("share-text").textContent = link;
+    $("share-panel").hidden = false;
+    $("share-panel").scrollIntoView({ block: "nearest" });
+  });
+  // The answer shows right under the Add button (the top of the page is off-screen on a phone).
+  $("add-go").addEventListener("click", () => {
+    const say = text => { $("add-msg").textContent = text; };
+    let d;
+    try { d = C.decode($("add-in").value); } catch (e) { return say(e.message); }
+    if (d.type === "invite") return say(t("inviteNotResult"));
+    const m = C.merge(getPacket(packetVisit), d.value);
+    if (m.ok) { putPacket(m.packet); $("add-in").value = ""; renderPacket(); }
+    say(m.message);
+  });
+
+  // A results link opened on a phone with no packet for that visit: the parent can start one here.
+  let pendingItem = null;
+  $("start-packet").addEventListener("click", () => {
+    const it = pendingItem;
+    const m = C.merge({ visit: it.visit, kind: it.kind, sent: [], raters: {} }, it);
+    putPacket(m.packet);
+    openPacket(it.visit, m.message);
+  });
 
   $("clear-all").addEventListener("click", () => {
     if (!confirm(t("clearConfirm"))) return;
-    try { localStorage.removeItem(STORE); } catch (e) { /* nothing stored */ }
-    st = null; returnToReview = false;
+    try { localStorage.removeItem(STORE); localStorage.removeItem(PSTORE); } catch (e) { /* nothing stored */ }
+    st = null; returnToReview = false; packetVisit = null; pendingItem = null;
     history.replaceState(null, "", location.pathname);
     $("top-msg").textContent = t("cleared");
     showFooter(); render();
   });
 
   // ---------- footer: printed attribution and the rater's disclaimer ----------
-  function showFooter() {
-    const A = F.ATTRIBUTION, follow = st && st.kind === "followup";
-    $("attr").textContent = [A.copyright + ".", A.adaptedFrom, follow ? A.sideEffectsFrom : ""].filter(Boolean).join(" ");
-    $("disclaimer").textContent = st && st.slot[0] === "T" ? A.disclaimer.teacher : A.disclaimer.parent;
+  function showFooterFor(kind, slot) {
+    const A = F.ATTRIBUTION;
+    $("attr").textContent = [A.copyright + ".", A.adaptedFrom, kind === "followup" ? A.sideEffectsFrom : ""].filter(Boolean).join(" ");
+    $("disclaimer").textContent = slot && slot[0] === "T" ? A.disclaimer.teacher : A.disclaimer.parent;
   }
+  function showFooter() { showFooterFor(st && st.kind, st && st.slot); }
 
   // ---------- entry from the address ----------
   function fromHash() {
     $("top-msg").textContent = "";
     const h = location.hash;
-    st = null;
-    if (h.length > 1) {
+    st = null; packetVisit = null; pendingItem = null;
+    const visitView = /^#visit-([0-9A-Z]{8})$/.exec(h);
+    if (visitView) {
+      if (getPacket(visitView[1])) return openPacket(visitView[1]);
+      history.replaceState(null, "", location.pathname);
+    } else if (h.length > 1) {
       try {
         const d = C.decode(h);
         if (d.type === "invite") return begin(d.value.visit, d.value.kind, d.value.slot);
+        // A result or packet: add it to this phone's packet for that visit, if there is one.
+        const p = getPacket(d.value.visit);
+        if (p) {
+          const m = C.merge(p, d.value);
+          if (m.ok) putPacket(m.packet);
+          return openPacket(p.visit, m.message);
+        }
         $("top-msg").textContent = t("resultLinkNote");
+        pendingItem = d.value;
+        showFooter(); render();
+        $("result-box").hidden = false;
+        return;
       } catch (e) { $("top-msg").textContent = e.message; }
     }
     showFooter(); render();
