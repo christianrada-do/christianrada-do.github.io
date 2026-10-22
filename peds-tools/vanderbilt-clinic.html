@@ -115,7 +115,24 @@
       --brand:#000; --brand-text:#FFF; --hi-bg:#EEE; --hi-text:#000;
     }
     .theme-toggle, .back, #pin-form, .noprint { display: none !important; }
+    /* "Print handouts": only the handouts, one per page */
+    body.print-handouts header, body.print-handouts main, body.print-handouts footer { display: none !important; }
+    body.print-handouts #handouts { display: block; }
+    .handout { break-after: page; page-break-after: always; padding: 10mm 6mm; color: #000; text-align: center; }
+    .handout:last-child { break-after: auto; page-break-after: auto; }
   }
+  /* handouts (print only) */
+  #handouts { display: none; }
+  .handout h2 { font-size: 22pt; color: #000; margin: 0 0 4mm; }
+  .handout .h-kind { font-size: 16pt; margin: 0 0 4mm; }
+  .handout .h-code { font-family: var(--mono); font-size: 30pt; letter-spacing: .06em; margin: 0 0 4mm; color: #000; }
+  .handout .h-qr svg { width: 70mm; height: 70mm; display: block; margin: 0 auto 6mm; }
+  .handout ol { text-align: left; font-size: 13pt; line-height: 1.5; max-width: 150mm; margin: 0 auto 4mm; padding-left: 7mm; }
+  .handout .h-note { font-size: 11pt; margin: 0 0 10mm; }
+  .handout .h-stub { border-top: 1px dashed #000; padding-top: 4mm; font-size: 11pt; text-align: left; max-width: 150mm; margin: 0 auto; }
+  .h-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+  .h-row input[type=number] { width: 6em; font: inherit; min-height: 48px; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--soft); color: var(--heading); }
+  .h-row select { font: inherit; min-height: 48px; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--soft); color: var(--heading); }
 </style>
 </head>
 <body>
@@ -173,6 +190,16 @@
       </details>
     </section>
 
+    <section class="card noprint">
+      <h3>Print handouts</h3>
+      <p class="legend">One page per family, each with its own new visit code and a QR code that opens the parent's form. Staff writes the code from the handout in the chart.</p>
+      <div class="h-row">
+        <label>Form<br><select id="h-kind"><option value="initial">First visit</option><option value="followup">Follow-up</option></select></label>
+        <label>How many<br><input type="number" id="h-count" min="1" max="50" value="20"></label>
+        <button type="button" class="btn" id="h-print">Print handouts</button>
+      </div>
+    </section>
+
     <div class="btns noprint">
       <button type="button" class="btn secondary" id="clear">Clear from this device</button>
       <button type="button" class="btn secondary" id="lock-btn">Lock clinician section</button>
@@ -197,7 +224,10 @@
 <script src="vanderbilt-codes.js?v=1"></script>
 <script src="vanderbilt-note-template.js?v=1"></script>
 <script src="vanderbilt-report.js?v=1"></script>
+<div id="handouts"></div>
+
+<script src="vendor/qrcode-generator-2.0.4.js"></script>
 <script src="vendor/jsQR-1.4.0.js"></script>
-<script src="vanderbilt-clinic.js?v=1"></script>
+<script src="vanderbilt-clinic.js?v=2"></script>
 </body>
 </html>

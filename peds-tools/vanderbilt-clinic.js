@@ -210,6 +210,60 @@
     $("add-label").firstChild.textContent = "Add a result";
   });
 
+  // ---------- printable handouts: one page per family, each with a new visit code ----------
+  function qrSvg(text, label) {
+    const q = window.qrcode(0, "M");
+    q.addData(text); q.make();
+    const n = q.getModuleCount(), size = n + 8, NS = "http://www.w3.org/2000/svg";
+    let d = "";
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (q.isDark(y, x)) d += "M" + (x + 4) + " " + (y + 4) + "h1v1h-1z";
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 " + size + " " + size);
+    svg.setAttribute("role", "img"); svg.setAttribute("aria-label", label);
+    const bg = document.createElementNS(NS, "rect");
+    bg.setAttribute("width", size); bg.setAttribute("height", size); bg.setAttribute("fill", "#FFFFFF");
+    const path = document.createElementNS(NS, "path");
+    path.setAttribute("d", d); path.setAttribute("fill", "#000000");
+    svg.append(bg, path);
+    return svg;
+  }
+  const HANDOUT_STEPS = [
+    "Scan the code with your phone camera and answer the questions.",
+    "On your phone, tap Send to teacher for each teacher.",
+    "When the forms are done, tap Send to your doctor and paste it into a MyChart message, or bring your phone to the visit."
+  ];
+  function buildHandouts(kind, count) {
+    const box = $("handouts"), used = new Set();
+    box.textContent = "";
+    while (used.size < count) used.add(C.newVisitCode());
+    used.forEach(visit => {
+      const shown = C.formatVisitCode(visit), page = el("section", "handout");
+      page.dataset.visit = visit;
+      page.append(el("h2", null, "ADHD rating forms for your child's visit"),
+        el("p", "h-kind", kind === "initial" ? "First visit" : "Follow-up"),
+        el("p", "h-code", shown));
+      const qr = el("div", "h-qr");
+      qr.append(qrSvg(C.toLink(C.encodeInvite({ visit: visit, kind: kind, slot: "P1" })), "QR code to start the form for visit " + shown));
+      const ol = el("ol");
+      HANDOUT_STEPS.forEach(s => ol.append(el("li", null, s)));
+      page.append(qr, ol,
+        el("p", "h-note", "No names or birthdays are asked. Answers stay on your phone until you send them."),
+        el("p", "h-stub", "For the chart: visit code " + shown + " (staff, please write this in the chart)."));
+      box.append(page);
+    });
+  }
+  $("h-print").addEventListener("click", () => {
+    const n = Math.max(1, Math.min(50, Math.round(Number($("h-count").value)) || 1));
+    $("h-count").value = n;
+    buildHandouts($("h-kind").value === "followup" ? "followup" : "initial", n);
+    document.body.classList.add("print-handouts");
+    window.print();
+  });
+  addEventListener("afterprint", () => {
+    document.body.classList.remove("print-handouts");
+    $("handouts").textContent = ""; // the codes are never kept
+  });
+
   function fromHash() {
     packet = null;
     $("add-msg").textContent = "";

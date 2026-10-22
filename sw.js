@@ -3,7 +3,7 @@
 // cache), so a fix reaches phones on the next online load. The saved copy is used only when the network fails.
 // Platform rules: MDN, "Using Service Workers", "Cache", "Response.redirect()" (developer.mozilla.org).
 // Any ?v= bump, new or renamed page, or new icon: update PRECACHE with the exact URL and bump CACHE (HANDOFF §2).
-const CACHE = "peds-tools-v5";
+const CACHE = "peds-tools-v6";
 const PRECACHE = [
   "/peds-tools/", "/peds-tools/asm-dosing.html", "/peds-tools/ballard.html", "/peds-tools/febrile-infant.html",
   "/peds-tools/febrile-infant-chop.html", "/peds-tools/kawasaki.html", "/peds-tools/fluids.html",
@@ -20,7 +20,7 @@ const PRECACHE = [
   "/peds-tools/vanderbilt.html", "/peds-tools/vanderbilt-clinic.html", "/peds-tools/vanderbilt-clinic.webmanifest",
   "/peds-tools/vanderbilt-forms.js?v=1", "/peds-tools/vanderbilt-score.js?v=1", "/peds-tools/vanderbilt-codes.js?v=1",
   "/peds-tools/vanderbilt-strings-en.js?v=1", "/peds-tools/vanderbilt-page.js?v=1", "/peds-tools/vanderbilt-note-template.js?v=1",
-  "/peds-tools/vanderbilt-report.js?v=1", "/peds-tools/vanderbilt-clinic.js?v=1",
+  "/peds-tools/vanderbilt-report.js?v=1", "/peds-tools/vanderbilt-clinic.js?v=2",
   "/peds-tools/vendor/qrcode-generator-2.0.4.js", "/peds-tools/vendor/jsQR-1.4.0.js",
 ];
 
