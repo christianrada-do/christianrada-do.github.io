@@ -13,7 +13,9 @@
 <meta name="theme-color" content="#0D0D0C">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href="manifest.webmanifest">
+<!-- Own home-screen app (opens straight on this page) -->
+<link rel="manifest" href="vanderbilt-clinic.webmanifest">
+<meta name="apple-mobile-web-app-title" content="ADHD Clinic">
 <script src="shared.js?v=3"></script>
 <link href="fonts/karmina.css?v=2" rel="stylesheet">
 <style>
@@ -106,6 +108,7 @@
   tr.disagree td { background: var(--hi-bg); }
   td.n { font-family: var(--mono); color: var(--heading); }
   .legend { font-size: 13px; margin: 0 0 6px; }
+  #scan-video { display: block; width: 100%; max-width: 420px; margin-top: 12px; border-radius: var(--radius); background: #000; }
   @media print {
     :root, :root[data-theme="dark"], :root[data-theme="light"], :root:not([data-theme="light"]) {
       --page:#FFF; --panel:#FFF; --soft:#FFF; --subtle:#EEE; --heading:#000; --body:#222; --border:#999; --band:#FFF; --band-text:#000; --band-muted:#333;
@@ -141,8 +144,17 @@
       <label for="add-in" id="add-label"><strong>Add a result</strong></label>
       <p class="legend">Paste a link (from MyChart or a QR) or type a backup code. Add each person's result one at a time; they are matched by visit code.</p>
       <input type="text" id="add-in" autocomplete="off" autocapitalize="characters" spellcheck="false">
-      <div class="btns"><button type="button" class="btn" id="add-go">Add</button></div>
+      <div class="btns">
+        <button type="button" class="btn" id="add-go">Add</button>
+        <button type="button" class="btn secondary" id="scan-go">Scan a QR code</button>
+      </div>
       <p class="msg" id="add-msg" role="status" aria-live="polite"></p>
+      <div id="scanner" hidden>
+        <video id="scan-video" playsinline muted></video>
+        <canvas id="scan-canvas" hidden></canvas>
+        <p class="legend" id="scan-status">Point the camera at the QR code.</p>
+        <div class="btns"><button type="button" class="btn secondary" id="scan-stop">Stop</button></div>
+      </div>
     </section>
 
     <p id="empty">No results yet. Nothing on this page is saved or sent; it lives only in this tab and its address.</p>
@@ -185,6 +197,7 @@
 <script src="vanderbilt-codes.js?v=1"></script>
 <script src="vanderbilt-note-template.js?v=1"></script>
 <script src="vanderbilt-report.js?v=1"></script>
+<script src="vendor/jsQR-1.4.0.js"></script>
 <script src="vanderbilt-clinic.js?v=1"></script>
 </body>
 </html>

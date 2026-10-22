@@ -150,7 +150,10 @@
     }
     $("med-legend").textContent = t("setupMedQuestion", { lead: F.MEDICATION_QUESTION }) + " (" + t("setupMedOptional") + ")";
     pills($("med-pick"), "med", F.MEDICATION, st.medication, v => { st.medication = v; save(); });
+    // A parent on the phone that holds this visit's packet can go back to it (owner, 2026-10-22).
+    $("setup-back").hidden = !(st.slot[0] === "P" && getPacket(st.visit));
   }
+  $("setup-back").addEventListener("click", () => { const v = st.visit; st = null; openPacket(v); });
   $("setup-go").addEventListener("click", () => {
     if (st.slot[0] === "T" && (!st.teacherRole || !st.timeKnown)) { $("setup-msg").textContent = t("setupNeedTeacher"); return; }
     $("setup-msg").textContent = "";

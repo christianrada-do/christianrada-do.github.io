@@ -27,6 +27,7 @@
     setupMedQuestion: "{lead} …?",
     setupMedOptional: "Optional",
     setupStart: "Start",
+    backToPacket: "Back to your child's forms",
 
     progress: "Question {n} of {total}",
     sectionSymptoms: "Symptoms",
