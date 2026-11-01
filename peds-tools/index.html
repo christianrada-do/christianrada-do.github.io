@@ -20,7 +20,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
-<script src="shared.js?v=3"></script>
+<script src="shared.js?v=4"></script>
 <!-- cursor-following pet (only appears if chosen through the secret code) -->
 <script src="pets.js?v=5" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,7 +33,7 @@
     --page: #F4F4F5; --panel: #FFFFFF; --soft: #FAFAFA;
     --brand: #232323; --brand-text: #FFFFFF;
     --band: #232323; --band-text: #FFFFFF; --band-muted: #A1A1AA;
-    --heading: #18181B; --body: #52525B; --border: #E4E4E7; --subtle: #F2F2F2;
+    --heading: #18181B; --body: #52525B; --border: #E4E4E7; --edge: #8A8A93; --subtle: #F2F2F2;
     --warn-bg: #FEF2F2; --warn-border: #FCA5A5; --warn-text: #7F1D1D;
     --focus: #161616;
     --radius: 4px;
@@ -46,7 +46,7 @@
       --page: #141413; --panel: #1C1B19; --soft: #242320;
       --brand: #FAF9F6; --brand-text: #141413;
       --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B;
-      --heading: #FAF9F6; --body: #C2BEB5; --border: #3A3833; --subtle: #2C2B27;
+      --heading: #FAF9F6; --body: #C2BEB5; --border: #3A3833; --edge: #7A766C; --subtle: #2C2B27;
       --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6;
       --focus: #FAF9F6;
     }
@@ -55,36 +55,35 @@
     --page: #141413; --panel: #1C1B19; --soft: #242320;
     --brand: #FAF9F6; --brand-text: #141413;
     --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B;
-    --heading: #FAF9F6; --body: #C2BEB5; --border: #3A3833; --subtle: #2C2B27;
+    --heading: #FAF9F6; --body: #C2BEB5; --border: #3A3833; --edge: #7A766C; --subtle: #2C2B27;
     --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6;
     --focus: #FAF9F6;
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
-  body { margin: 0; background: var(--page); color: var(--body); font: 17px/1.6 var(--sans); }
+  body { margin: 0; background: var(--page); color: var(--body); font: calc(17px * var(--tb, 1))/1.6 var(--sans); }
   strong, b { color: var(--heading); font-weight: 600; }
 
   .band { background: var(--band); color: var(--band-text); }
   .band-inner { max-width: 760px; margin: 0 auto; padding: 40px 16px 36px; position: relative; }
   header.band .band-inner { padding-top: 64px; }
-  .band h1 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.02em; font-size: clamp(2rem, 7vw, 2.9rem);
+  .band h1 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.02em; font-size: calc(clamp(2rem, 7vw, 2.9rem) * var(--tb, 1));
              line-height: 1.05; margin: 0 0 10px; color: var(--band-text); }
   .band h1.with-logo { display: flex; align-items: center; gap: .35em; }
   .band h1 .logo { width: 1.15em; height: 1.15em; flex: none; border-radius: .2em; }
   .band .by { margin: 0; color: var(--band-muted); }
-  footer.band .band-inner { padding: 28px 16px 36px; font-size: 14px; }
+  footer.band .band-inner { padding: 28px 16px 36px; font-size: calc(14px * var(--tb, 1)); }
   footer.band p { margin: 0 0 8px; color: var(--band-muted); }
   footer.band a { color: inherit; text-underline-offset: 2px; }
   footer.band .credit { margin-top: 14px; }
   .pixel-heart { width: 1em; height: .86em; vertical-align: -.08em; margin: 0 .15em; image-rendering: pixelated; }
-  footer.band .sprite-credit { font-size: 12px; opacity: .8; }
-  .theme-toggle { position: absolute; top: 12px; right: 16px; min-height: 40px; padding: 6px 12px;
-    font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
-    color: var(--band-text); background: transparent; border: 1px solid var(--band-muted); border-radius: var(--radius); cursor: pointer; }
+  footer.band .sprite-credit { font-size: calc(12px * var(--ts, 1)); font-family: var(--small-font); font-weight: 500; }
+  .theme-toggle { position: absolute; top: 12px; right: 16px; min-height: 40px; padding: 6px 12px; font-size: calc(12px * var(--ts, 1)); font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--band-text); background: transparent; border: 1px solid var(--band-muted); border-radius: var(--radius); cursor: pointer; font-family: var(--small-font); }
   .theme-toggle:focus-visible { outline: 2px solid var(--band-text); outline-offset: 2px; }
 
   .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 40px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
-  h2 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.015em; font-size: 1.65rem; line-height: 1.15;
+  h2 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.015em; font-size: calc(1.65rem * var(--tb, 1)); line-height: 1.15;
        color: var(--heading); margin: 28px 0 12px; }
   .banner { border-radius: var(--radius); padding: 12px 14px; margin: 0 0 8px; border: 1px solid;
             background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); }
@@ -93,26 +92,26 @@
 
   .tools { display: grid; gap: 12px; }
   .tool { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
-  .tool h3 { font-family: var(--sans); font-size: 1.15rem; font-weight: 600; color: var(--heading); margin: 0 0 6px; }
+  .tool h3 { font-family: var(--sans); font-size: calc(1.15rem * var(--tb, 1)); font-weight: 600; color: var(--heading); margin: 0 0 6px; }
   .tool p { margin: 0 0 14px; }
   .tool.soon { background: var(--soft); border-style: dashed; }
   .tool.soon p { margin: 0; }
-  .tag { display: inline-block; font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
-         color: var(--body); border: 1px solid var(--border); border-radius: 2px; padding: 1px 6px; margin-bottom: 8px; }
+  .tag { display: inline-block; font-size: calc(12px * var(--ts, 1)); letter-spacing: .06em; text-transform: uppercase;
+         color: var(--body); border: 1px solid var(--border); border-radius: 2px; padding: 1px 6px; margin-bottom: 8px; font-family: var(--small-font); font-weight: 500; }
   .btns { display: flex; flex-wrap: wrap; gap: 10px; }
-  .btn { font: inherit; font-weight: 600; font-size: 15px; border-radius: var(--radius); padding: 11px 18px; min-height: 52px;
+  .btn { font: inherit; font-weight: 600; font-size: calc(15px * var(--tb, 1)); border-radius: var(--radius); padding: 11px 18px; min-height: 52px;
          border: 1px solid var(--brand); background: var(--brand); color: var(--brand-text); text-decoration: none;
          display: inline-flex; align-items: center; cursor: pointer; }
-  .btn.secondary { background: var(--panel); color: var(--heading); border-color: var(--border); }
+  .btn.secondary { background: var(--panel); color: var(--heading); border-color: var(--edge); }
   .btn:focus-visible, summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
   details { margin-top: 12px; }
   summary { font-weight: 600; color: var(--heading); cursor: pointer; }
   .qr { display: block; width: 200px; height: 200px; margin: 12px 0 4px; background: #fff; padding: 8px; border-radius: var(--radius); }
-  .hint { font-size: 15px; margin: 4px 0 0; }
+  .hint { font-size: calc(15px * var(--tb, 1)); margin: 4px 0 0; }
   .pin label { display: block; font-weight: 600; color: var(--heading); margin-bottom: 8px; }
   .pin-row { display: flex; gap: 10px; flex-wrap: wrap; }
-  .pin input { font: inherit; font-family: var(--mono); font-size: 22px; letter-spacing: .3em; width: 7.5em; min-height: 52px;
-               padding: 8px 12px; color: var(--heading); background: var(--soft); border: 1px solid var(--border); border-radius: var(--radius); }
+  .pin input { font: inherit; font-family: var(--mono); font-size: calc(22px * var(--tb, 1)); letter-spacing: .3em; width: 7.5em; min-height: 52px;
+               padding: 8px 12px; color: var(--heading); background: var(--soft); border: 1px solid var(--edge); border-radius: var(--radius); }
   .pin input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
   .pin-msg { margin: 8px 0 0; min-height: 1.2em; color: var(--warn-text); font-weight: 600; }
   [hidden] { display: none !important; }

@@ -9,7 +9,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
-<script src="shared.js?v=3"></script>
+<script src="shared.js?v=4"></script>
 <script src="pets.js?v=5" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,32 +18,31 @@
 <style>
   :root {
     --page: #F4F4F5; --panel: #FFFFFF; --band: #232323; --band-text: #FFFFFF; --band-muted: #A1A1AA;
-    --heading: #18181B; --body: #52525B; --border: #E4E4E7; --radius: 4px;
+    --heading: #18181B; --body: #52525B; --border: #E4E4E7; --edge: #8A8A93; --radius: 4px;
     --serif: "Karmina", Georgia, serif;
     --sans: "Karmina", Georgia, serif;
     --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   }
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) { --page: #141413; --panel: #1C1B19; --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5; --border: #3A3833; }
+    :root:not([data-theme="light"]) { --page: #141413; --panel: #1C1B19; --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5; --border: #3A3833; --edge: #7A766C; }
   }
-  :root[data-theme="dark"] { --page: #141413; --panel: #1C1B19; --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5; --border: #3A3833; }
+  :root[data-theme="dark"] { --page: #141413; --panel: #1C1B19; --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5; --border: #3A3833; --edge: #7A766C; }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--page); color: var(--body); font: 17px/1.6 var(--sans); }
+  body { margin: 0; background: var(--page); color: var(--body); font: calc(17px * var(--tb, 1))/1.6 var(--sans); }
   a { color: var(--heading); text-underline-offset: 2px; }
   strong { color: var(--heading); font-weight: 600; }
   .band { background: var(--band); color: var(--band-text); }
   .band-inner { max-width: 760px; margin: 0 auto; padding: 64px 16px 32px; position: relative; }
-  .band h1 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.02em; font-size: clamp(2rem, 7vw, 2.9rem); line-height: 1.05; margin: 0 0 10px; color: var(--band-text); }
+  .band h1 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.02em; font-size: calc(clamp(2rem, 7vw, 2.9rem) * var(--tb, 1)); line-height: 1.05; margin: 0 0 10px; color: var(--band-text); }
   .band .by { margin: 0; color: var(--band-muted); }
-  .back { position: absolute; top: 18px; left: 16px; color: var(--band-muted); font-size: 14px; }
-  .theme-toggle { position: absolute; top: 12px; right: 16px; min-height: 40px; padding: 6px 12px; font-family: var(--mono); font-size: 12px; font-weight: 500;
-    letter-spacing: .06em; text-transform: uppercase; color: var(--band-text); background: transparent; border: 1px solid var(--band-muted); border-radius: var(--radius); cursor: pointer; }
+  .theme-toggle { position: absolute; top: 12px; right: 16px; min-height: 40px; padding: 6px 12px; font-size: calc(12px * var(--ts, 1)); font-weight: 500;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--band-text); background: transparent; border: 1px solid var(--band-muted); border-radius: var(--radius); cursor: pointer; font-family: var(--small-font); }
   .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 40px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
   section { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 14px; }
-  h2 { font-family: var(--serif); font-weight: 500; font-size: 1.5rem; color: var(--heading); margin: 0 0 8px; }
+  h2 { font-family: var(--serif); font-weight: 500; font-size: calc(1.5rem * var(--tb, 1)); color: var(--heading); margin: 0 0 8px; }
   ul { padding-left: 1.2em; margin: 8px 0 0; } li { margin: 4px 0; }
   p { margin: 0 0 8px; }
-  footer.band .band-inner { padding: 28px 16px 36px; font-size: 14px; }
+  footer.band .band-inner { padding: 28px 16px 36px; font-size: calc(14px * var(--tb, 1)); }
   footer.band p { color: var(--band-muted); }
   footer.band a { color: inherit; }
   .pixel-heart { width: 1em; height: .86em; vertical-align: -.08em; margin: 0 .15em; }
@@ -52,7 +51,7 @@
 <body>
 <header class="band">
   <div class="band-inner">
-    <a class="back" href="./">← Pediatric Tools</a>
+    <a class="home" href="./"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Home</a>
     <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch between light and dark mode"></button>
     <h1>Credits</h1>
     <p class="by">Pediatric Tools, by Dr. Christian Rada, DO</p>
@@ -80,6 +79,7 @@
   <section aria-labelledby="fonts-h">
     <h2 id="fonts-h">Fonts</h2>
     <p>EB Garamond, Inter and Geist Mono, from <a href="https://fonts.google.com">Google Fonts</a> (SIL Open Font License).</p>
+    <p>Small text is set in <a href="https://github.com/googlefonts/atkinson-hyperlegible-next">Atkinson Hyperlegible Next</a> by the Braille Institute of America (copyright 2020-2024 The Atkinson Hyperlegible Next Project Authors; <a href="fonts/OFL.txt">SIL Open Font License 1.1</a>), saved in this site.</p>
   </section>
 
   <section aria-labelledby="design-h">

@@ -9,7 +9,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
-<script src="shared.js?v=3"></script>
+<script src="shared.js?v=4"></script>
 <script src="pets.js?v=5" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,7 +21,7 @@
     --page: #F4F4F5; --panel: #FFFFFF; --soft: #FAFAFA;
     --brand: #232323; --brand-text: #FFFFFF;
     --band: #232323; --band-text: #FFFFFF; --band-muted: #A1A1AA;
-    --heading: #18181B; --body: #52525B; --border: #E4E4E7; --subtle: #F2F2F2;
+    --heading: #18181B; --body: #52525B; --border: #E4E4E7; --edge: #8A8A93; --subtle: #F2F2F2;
     --warn-bg: #FEF2F2; --warn-border: #FCA5A5; --warn-text: #7F1D1D;
     --focus: #161616; --radius: 4px;
     --serif: "Karmina", Georgia, serif;
@@ -32,60 +32,59 @@
     :root:not([data-theme="light"]) {
       --page: #141413; --panel: #1C1B19; --soft: #242320; --brand: #FAF9F6; --brand-text: #141413;
       --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5;
-      --border: #3A3833; --subtle: #2C2B27; --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6; --focus: #FAF9F6;
+      --border: #3A3833; --edge: #7A766C; --subtle: #2C2B27; --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6; --focus: #FAF9F6;
     }
   }
   :root[data-theme="dark"] {
     --page: #141413; --panel: #1C1B19; --soft: #242320; --brand: #FAF9F6; --brand-text: #141413;
     --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5;
-    --border: #3A3833; --subtle: #2C2B27; --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6; --focus: #FAF9F6;
+    --border: #3A3833; --edge: #7A766C; --subtle: #2C2B27; --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6; --focus: #FAF9F6;
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
-  body { margin: 0; background: var(--page); color: var(--body); font: 16px/1.55 var(--sans); padding-bottom: 72px; }
+  body { margin: 0; background: var(--page); color: var(--body); font: calc(16px * var(--tb, 1))/1.55 var(--sans); padding-bottom: 72px; }
   strong, b { color: var(--heading); font-weight: 600; }
   a { color: var(--heading); }
   .band { background: var(--band); color: var(--band-text); }
   .band-inner { max-width: 900px; margin: 0 auto; padding: 40px 16px 32px; position: relative; }
   header.band .band-inner { padding-top: 64px; }
-  .band h1 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.02em; font-size: clamp(1.9rem, 6vw, 2.6rem); line-height: 1.08; margin: 0 0 10px; color: var(--band-text); }
+  .band h1 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.02em; font-size: calc(clamp(1.9rem, 6vw, 2.6rem) * var(--tb, 1)); line-height: 1.08; margin: 0 0 10px; color: var(--band-text); }
   .band .by { margin: 0; color: var(--band-muted); }
-  .back { position: absolute; top: 18px; left: 16px; color: var(--band-muted); font-size: 14px; }
-  .theme-toggle { position: absolute; top: 12px; right: 16px; min-height: 40px; padding: 6px 12px; font-family: var(--mono); font-size: 12px; font-weight: 500;
-    letter-spacing: .06em; text-transform: uppercase; color: var(--band-text); background: transparent; border: 1px solid var(--band-muted); border-radius: var(--radius); cursor: pointer; }
-  footer.band .band-inner { padding: 28px 16px 36px; font-size: 13px; }
+  .theme-toggle { position: absolute; top: 12px; right: 16px; min-height: 40px; padding: 6px 12px; font-size: calc(12px * var(--ts, 1)); font-weight: 500;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--band-text); background: transparent; border: 1px solid var(--band-muted); border-radius: var(--radius); cursor: pointer; font-family: var(--small-font); }
+  footer.band .band-inner { padding: 28px 16px 36px; font-size: calc(13px * var(--ts, 1)); font-family: var(--small-font); font-weight: 500; }
   footer.band p { margin: 0 0 8px; color: var(--band-muted); }
   footer.band a { color: inherit; text-underline-offset: 2px; }
-  footer.band .credit { margin-top: 14px; font-size: 14px; }
-  footer.band .sprite-credit { font-size: 12px; opacity: .8; }
+  footer.band .credit { margin-top: 14px; font-size: calc(14px * var(--tb, 1)); }
+  footer.band .sprite-credit { font-size: calc(12px * var(--ts, 1)); font-family: var(--small-font); font-weight: 500; }
   .pixel-heart { width: 1em; height: .86em; vertical-align: -.08em; margin: 0 .15em; }
 
   .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 40px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
-  h2 { font-family: var(--serif); font-weight: 500; font-size: 1.5rem; color: var(--heading); margin: 0 0 10px; letter-spacing: -0.01em; }
-  h3 { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; color: var(--body); margin: 18px 0 8px; }
+  h2 { font-family: var(--serif); font-weight: 500; font-size: calc(1.5rem * var(--tb, 1)); color: var(--heading); margin: 0 0 10px; letter-spacing: -0.01em; }
+  h3 { font-size: calc(12px * var(--ts, 1)); font-weight: 500; letter-spacing: .07em; text-transform: uppercase; color: var(--body); margin: 18px 0 8px; font-family: var(--small-font); }
   .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
   .banner { border-radius: var(--radius); padding: 12px 14px; margin: 0 0 12px; border: 1px solid; background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); }
   .banner p { margin: 0; } .banner p + p { margin-top: 6px; } .banner strong { color: inherit; }
-  label { display: block; font-weight: 600; color: var(--heading); margin-bottom: 6px; font-size: 15px; }
-  input[type=number], input[type=password], select { font: inherit; font-size: 16px; color: var(--heading); background: var(--soft);
-    border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; min-height: 48px; width: 100%; }
+  label { display: block; font-weight: 600; color: var(--heading); margin-bottom: 6px; font-size: calc(15px * var(--tb, 1)); }
+  input[type=number], input[type=password], select { font: inherit; font-size: calc(16px * var(--tb, 1)); color: var(--heading); background: var(--soft);
+    border: 1px solid var(--edge); border-radius: var(--radius); padding: 10px 12px; min-height: 48px; width: 100%; }
   input:focus-visible, select:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; align-items: end; }
-  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; height: 48px; }
+  .seg { display: inline-flex; border: 1px solid var(--edge); border-radius: var(--radius); overflow: hidden; height: 48px; }
   .seg input { position: absolute; opacity: 0; pointer-events: none; }
-  .seg label { margin: 0; padding: 0 16px; display: flex; align-items: center; cursor: pointer; background: var(--soft); font-size: 15px; }
+  .seg label { margin: 0; padding: 0 16px; display: flex; align-items: center; cursor: pointer; background: var(--soft); font-size: calc(15px * var(--tb, 1)); }
   .seg label + input + label { border-left: 1px solid var(--border); }
   .seg input:checked + label { background: var(--brand); color: var(--brand-text); }
   .seg input:focus-visible + label { outline: 2px solid var(--focus); outline-offset: -4px; }
-  .hint { font-size: 14px; margin: 6px 0 0; }
+  .hint { font-size: calc(14px * var(--tb, 1)); margin: 6px 0 0; }
   .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; color: var(--body); margin-top: 14px; cursor: pointer; }
   .check input { width: 22px; height: 22px; flex: none; margin: 1px 0 0; accent-color: var(--brand); }
-  .btn { font: inherit; font-weight: 600; font-size: 15px; border-radius: var(--radius); padding: 10px 18px; min-height: 48px; border: 1px solid var(--brand);
+  .btn { font: inherit; font-weight: 600; font-size: calc(15px * var(--tb, 1)); border-radius: var(--radius); padding: 10px 18px; min-height: 48px; border: 1px solid var(--brand);
     background: var(--brand); color: var(--brand-text); cursor: pointer; }
-  .btn.secondary { background: var(--panel); color: var(--heading); border-color: var(--border); }
+  .btn.secondary { background: var(--panel); color: var(--heading); border-color: var(--edge); }
   .btns { display: flex; flex-wrap: wrap; gap: 10px; }
-  .caveat { border-left: 3px solid var(--warn-border); padding: 6px 10px; margin: 6px 0; font-size: 14.5px; }
-  .src { font-size: 13px; margin-top: 14px; }
+  .caveat { border-left: 3px solid var(--warn-border); padding: 6px 10px; margin: 6px 0; font-size: calc(14.5px * var(--tb, 1)); }
+  .src { font-size: calc(13px * var(--ts, 1)); margin-top: 14px; font-family: var(--small-font); font-weight: 500; }
   [hidden] { display: none !important; }
 
 
@@ -94,27 +93,27 @@
   .twins.one { grid-template-columns: 1fr; }
   .count-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 12px; }
   .count-row .lbl { font-weight: 600; color: var(--heading); }
-  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; height: 44px; }
+  .seg { display: inline-flex; border: 1px solid var(--edge); border-radius: var(--radius); overflow: hidden; height: 44px; }
   .seg input { position: absolute; opacity: 0; pointer-events: none; }
-  .seg label { margin: 0; padding: 0 18px; display: flex; align-items: center; cursor: pointer; background: var(--soft); font-size: 15px; color: var(--heading); }
+  .seg label { margin: 0; padding: 0 18px; display: flex; align-items: center; cursor: pointer; background: var(--soft); font-size: calc(15px * var(--tb, 1)); color: var(--heading); }
   .seg label + input + label { border-left: 1px solid var(--border); }
   .seg input:checked + label { background: var(--brand); color: var(--brand-text); }
   .seg input:focus-visible + label { outline: 2px solid var(--focus); outline-offset: -4px; }
   .twins .card { padding: 12px; margin-bottom: 16px; min-width: 0; }
-  .nm-l { font-size: 12px; font-family: var(--mono); font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--body); margin-bottom: 4px; }
-  .nm { font: inherit; font-weight: 600; font-size: 17px; color: var(--heading); background: var(--soft); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 10px; min-height: 44px; width: 100%; }
-  .sum { margin: 10px 0; font-size: 13.5px; line-height: 1.4; min-height: 4.2em; }
+  .nm-l { font-size: calc(12px * var(--ts, 1)); font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--body); margin-bottom: 4px; font-family: var(--small-font); }
+  .nm { font: inherit; font-weight: 600; font-size: calc(17px * var(--tb, 1)); color: var(--heading); background: var(--soft); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 10px; min-height: 44px; width: 100%; }
+  .sum { margin: 10px 0; font-size: calc(13.5px * var(--ts, 1)); line-height: 1.4; min-height: 4.2em; font-family: var(--small-font); font-weight: 500; }
   .sum p { margin: 0 0 3px; }
   .sum .asleep { color: var(--heading); font-weight: 600; }
   .taps { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-  .tap { font: inherit; font-weight: 600; font-size: 15px; min-height: 56px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--soft); color: var(--heading); cursor: pointer; touch-action: manipulation; }
+  .tap { font: inherit; font-weight: 600; font-size: calc(15px * var(--tb, 1)); min-height: 56px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--soft); color: var(--heading); cursor: pointer; touch-action: manipulation; }
   .tap:active { background: var(--subtle); }
   .tap.sleep { grid-column: 1 / -1; }
   .tap.sleep.on { background: var(--brand); color: var(--brand-text); border-color: var(--brand); }
-  .baby .undo { width: 100%; margin-top: 8px; min-height: 48px; font-size: 14px; }
+  .baby .undo { width: 100%; margin-top: 8px; min-height: 48px; font-size: calc(14px * var(--tb, 1)); }
   #hist h3 { margin: 14px 0 4px; }
-  #hist .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 15px; color: var(--heading); }
-  #hist .x { font: inherit; font-size: 20px; line-height: 1; min-width: 44px; min-height: 40px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); color: var(--body); cursor: pointer; }
+  #hist .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: calc(15px * var(--tb, 1)); color: var(--heading); }
+  #hist .x { font: inherit; font-size: calc(20px * var(--tb, 1)); line-height: 1; min-width: 44px; min-height: 40px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); color: var(--body); cursor: pointer; }
   input:focus-visible, button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
   @media print {
@@ -123,14 +122,14 @@
       --brand:#000; --brand-text:#FFF; --warn-bg:#FFF; --warn-border:#999; --warn-text:#000;
     }
     body { padding-bottom: 0; }
-    .theme-toggle, .back, .noprint { display: none !important; }
+    .theme-toggle, .home, .noprint { display: none !important; }
   }
 </style>
 </head>
 <body>
 <header class="band">
   <div class="band-inner">
-    <a class="back" href="./">← Pediatric Tools</a>
+    <a class="home" href="./"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Home</a>
     <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch between light and dark mode"></button>
     <h1>Baby Tracker</h1>
     <p class="by">By Dr. Christian Rada, DO · For families</p>
