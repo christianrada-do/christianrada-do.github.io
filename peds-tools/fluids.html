@@ -368,8 +368,8 @@ function amTable(p, naS, tbwL, list) {
 function sodium(p) {
   const na = val("na");
   const opts = $("na-opts");
-  if (na == null) { opts.innerHTML = ""; return `<p class="hint">Enter the serum sodium.</p>`; }
-  if (!(na >= 90 && na <= 200)) { opts.innerHTML = ""; return box("banner", "<p>Please check the sodium you entered.</p>"); }
+  if (na == null) { opts.dataset.mode = ""; opts.innerHTML = ""; return `<p class="hint">Enter the serum sodium.</p>`; }
+  if (!(na >= 90 && na <= 200)) { opts.dataset.mode = ""; opts.innerHTML = ""; return box("banner", "<p>Please check the sodium you entered.</p>"); }
   const t = tbw(p);
   const tbwL = p.kg ? t.f * p.kg : null;
   let h = "";
