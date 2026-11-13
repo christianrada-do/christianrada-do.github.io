@@ -85,6 +85,8 @@
   /* camera preview with a square scan frame (the whole picture is read, the frame is a guide) */
   .viewer { position: relative; width: min(100%, 420px); aspect-ratio: 1; margin: 14px auto 0; overflow: hidden; border-radius: var(--radius); background: #000; }
   .viewer video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .viewer video.mirror { transform: scaleX(-1); }
+  .card.dropping { outline: 2px dashed var(--edge); outline-offset: -8px; }
   .viewer .frame { position: absolute; inset: 15%; border: 3px solid #FFFFFF; border-radius: 12px; box-shadow: 0 0 0 999px rgba(0, 0, 0, .45); pointer-events: none; }
 
   /* result: the QR is a PNG with its own white quiet zone, so it stays black on white in every theme */
@@ -118,7 +120,8 @@
 <main class="wrap">
   <section class="card" id="scan-card" aria-labelledby="scan-h">
     <h2 id="scan-h">Scan a QR code</h2>
-    <p class="hint">Point the camera at a QR code. It reads by itself.</p>
+    <p class="hint">Point the camera at a QR code, or hold the code up to your computer's webcam. It reads by itself.
+      On a computer you can also paste or drop a picture here.</p>
     <div class="viewer" id="viewer" hidden>
       <video id="video" playsinline muted autoplay aria-label="Camera preview"></video>
       <div class="frame" aria-hidden="true"></div>
@@ -179,24 +182,30 @@
   const MSG = {
     denied: "<p><strong>Camera access is blocked.</strong> To allow it:</p><ul>" +
       "<li><b>iPhone (Safari):</b> tap <b>aA</b> in the address bar, then <b>Website Settings</b>, then set <b>Camera</b> to <b>Allow</b>.</li>" +
-      "<li><b>Android (Chrome):</b> tap the icon left of the address, then <b>Permissions</b>, then turn <b>Camera</b> on.</li></ul>" +
-      "<p>Then tap <b>Start scanning</b> again. Or tap <b>Upload image</b> to read a QR code from a photo or screenshot.</p>",
-    none: "<p>No camera was found on this device. Tap <b>Upload image</b> to read a QR code from a photo or screenshot.</p>",
-    busy: "<p>The camera is being used by another app. Close that app and try again, or tap <b>Upload image</b>.</p>",
-    unsupported: "<p>This browser can't use the camera here. Tap <b>Upload image</b> to read a QR code from a photo or screenshot.</p>",
-    other: "<p>The camera didn't start. Try again, or tap <b>Upload image</b> to read a QR code from a photo or screenshot.</p>",
+      "<li><b>Android (Chrome):</b> tap the icon left of the address, then <b>Permissions</b>, then turn <b>Camera</b> on.</li>" +
+      "<li><b>Computer:</b> click the camera or lock icon in the address bar, allow the camera, then reload the page. If it is still blocked, " +
+      "allow your browser in <b>Windows Settings › Privacy &amp; security › Camera</b>, or on a Mac in <b>System Settings › Privacy &amp; Security › Camera</b>.</li></ul>" +
+      "<p>Then choose <b>Start scanning</b> again. Or use <b>Upload image</b> to read a QR code from a photo or screenshot.</p>",
+    none: "<p>No camera was found on this device. Use <b>Upload image</b> to read a QR code from a photo or screenshot.</p>",
+    busy: "<p>The camera is being used by another app, such as a video call. Close that app and try again, or use <b>Upload image</b>. " +
+      "On a computer, also check that its privacy settings let your browser use the camera.</p>",
+    unsupported: "<p>This browser can't use the camera here. Use <b>Upload image</b> to read a QR code from a photo or screenshot.</p>",
+    other: "<p>The camera didn't start. Try again, or use <b>Upload image</b> to read a QR code from a photo or screenshot.</p>",
   };
   function scanMsg(html) { const m = $("scan-msg"); m.innerHTML = html || ""; m.hidden = !html; }
   function status(t) { $("scan-status").textContent = t; }
 
   // ---------- reading ----------
   // Reads a QR code from an image source (video, img) drawn at most `max` pixels wide. Returns the text or null.
-  function readImage(src, w0, h0, max, invert) {
+  // With `crop` (0-1), only the centre square of that share of the shorter side is read, at more detail.
+  function readImage(src, w0, h0, max, invert, crop) {
     if (!w0 || !h0) return null;
-    const k = Math.min(1, max / Math.max(w0, h0)), w = Math.max(1, Math.round(w0 * k)), h = Math.max(1, Math.round(h0 * k));
+    let sx = 0, sy = 0, sw = w0, sh = h0;
+    if (crop) { sw = sh = Math.round(Math.min(w0, h0) * crop); sx = Math.round((w0 - sw) / 2); sy = Math.round((h0 - sh) / 2); }
+    const k = Math.min(1, max / Math.max(sw, sh)), w = Math.max(1, Math.round(sw * k)), h = Math.max(1, Math.round(sh * k));
     work.width = w; work.height = h;
     const g = work.getContext("2d", { willReadFrequently: true });
-    g.drawImage(src, 0, 0, w, h);
+    g.drawImage(src, sx, sy, sw, sh, 0, 0, w, h);
     const code = window.jsQR(g.getImageData(0, 0, w, h).data, w, h, { inversionAttempts: invert });
     return code && code.data !== "" ? code.data : null;
   }
@@ -212,10 +221,14 @@
     $("start").hidden = false;
     status(note || "");
   }
+  // Frames alternate between the whole picture and the centre square (the scan frame) at full detail,
+  // so a small code held up to a 720p computer webcam still has enough pixels.
+  let frameNo = 0;
   function tick(mine) {
     if (!stream || mine !== run) return;
     let text = null;
-    try { text = readImage(video, video.videoWidth, video.videoHeight, 640, "attemptBoth"); } catch (e) { /* try the next frame */ }
+    const crop = frameNo++ % 2 ? 0.8 : 0;
+    try { text = readImage(video, video.videoWidth, video.videoHeight, 640, "attemptBoth", crop); } catch (e) { /* try the next frame */ }
     if (mine !== run) return;
     if (text !== null) { stop(); showResult(text); return; }
     timer = setTimeout(() => tick(mine), 200);
@@ -230,7 +243,8 @@
     let s;
     try {
       s = await navigator.mediaDevices.getUserMedia({
-        video: deviceId ? { deviceId: { exact: deviceId } } : { facingMode: { ideal: "environment" } }, audio: false });
+        video: Object.assign({ width: { ideal: 1280 } }, deviceId ? { deviceId: { exact: deviceId } } : { facingMode: { ideal: "environment" } }),
+        audio: false });
     } catch (e) {
       if (mine !== run) return;
       const n = e && e.name;
@@ -246,7 +260,11 @@
     if (mine !== run) { s.getTracks().forEach(t => t.stop()); return; }
     stream = s;
     const track = s.getVideoTracks()[0];
-    camId = track && track.getSettings ? track.getSettings().deviceId || null : null;
+    const set = track && track.getSettings ? track.getSettings() : {};
+    camId = set.deviceId || null;
+    // A computer webcam or a front camera shows a mirror image, as people expect; a rear camera doesn't.
+    // Only the preview is flipped: frames are read as the camera sends them.
+    video.classList.toggle("mirror", set.facingMode !== "environment");
     video.srcObject = s;
     const p = video.play();
     if (p && p.catch) p.catch(() => { /* muted video plays on its own on most phones; frames are tried anyway */ });
@@ -395,6 +413,30 @@
   $("switch").addEventListener("click", switchCamera);
   $("upload").addEventListener("click", () => $("file").click());
   $("file").addEventListener("change", e => { const f = e.target.files[0]; e.target.value = ""; handleFile(f); });
+  // On a computer: paste a picture (Ctrl+V / Cmd+V) or drop one on the page; both go through the upload path.
+  const imageIn = list => [...(list || [])].find(f => f && /^image\//.test(f.type)) || null;
+  document.addEventListener("paste", e => {
+    const d = e.clipboardData;
+    if (!d) return;
+    const f = imageIn(d.files) || imageIn([...(d.items || [])].filter(i => i.kind === "file").map(i => i.getAsFile()));
+    if (!f) return;
+    e.preventDefault();
+    if ($("scan-card").hidden) { $("result-card").hidden = true; $("scan-card").hidden = false; }
+    handleFile(f);
+  });
+  const dropping = on => $("scan-card").classList.toggle("dropping", on && !$("scan-card").hidden);
+  document.addEventListener("dragover", e => {
+    if (!e.dataTransfer || ![...e.dataTransfer.types].includes("Files")) return;
+    e.preventDefault(); e.dataTransfer.dropEffect = "copy"; dropping(true);
+  });
+  document.addEventListener("dragleave", e => { if (!e.relatedTarget) dropping(false); });
+  document.addEventListener("drop", e => {
+    if (!e.dataTransfer || !e.dataTransfer.files.length) return;
+    e.preventDefault(); dropping(false);
+    const f = imageIn(e.dataTransfer.files);
+    if ($("scan-card").hidden) { $("result-card").hidden = true; $("scan-card").hidden = false; }
+    if (f) handleFile(f); else scanMsg("<p>That file isn't a picture. Drop a photo or screenshot (JPEG or PNG).</p>");
+  });
   $("copy").addEventListener("click", copy);
   $("again").addEventListener("click", again);
 
