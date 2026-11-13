@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QR Mirror</title>
+<meta name="description" content="Scan a QR code with your phone's camera, then see the same QR code large on screen with what it says written below.">
+<meta name="theme-color" content="#0D0D0C">
+<!-- Night Mode in Brave on iPhone (Dark Reader) stays off here, so the site's own light/dark switch decides (owner, 2026-11-03). -->
+<meta name="darkreader-lock">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<script src="shared.js?v=5"></script>
+<script src="pets.js?v=5" defer></script>
+<!-- QR libraries, pinned, from jsDelivr (owner, 2026-11-13: CDN with pinned versions). The same npm builds the ADHD site
+     keeps in its vendor/ folder (checked byte for byte). The integrity hashes make the browser refuse a changed file. -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" integrity="sha384-b5Ya4Bq3qCyz39m2ISh+4DxjAIljdeFwK/BsXLuj9gugaNwAcj/ia15fxNZL9Nlx" crossorigin="anonymous" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@2.0.4/dist/qrcode.min.js" integrity="sha384-o5vdFlIHJf1L/hUFEtj8tgNVtCT+02DKNT3MPA47wJ9Eo5HocC7qCL2YL+sWNsk8" crossorigin="anonymous" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="fonts/karmina.css?v=2" rel="stylesheet">
+<style>
+  /* Same tokens as the hub and the other tools. */
+  :root {
+    --page: #F4F4F5; --panel: #FFFFFF; --soft: #FAFAFA;
+    --brand: #232323; --brand-text: #FFFFFF;
+    --band: #232323; --band-text: #FFFFFF; --band-muted: #A1A1AA;
+    --heading: #18181B; --body: #52525B; --border: #E4E4E7; --edge: #8A8A93; --subtle: #F2F2F2;
+    --warn-bg: #FEF2F2; --warn-border: #FCA5A5; --warn-text: #7F1D1D;
+    --focus: #161616; --radius: 4px;
+    --serif: "Karmina", Georgia, serif;
+    --sans: "Karmina", Georgia, serif;
+    --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #141413; --panel: #1C1B19; --soft: #242320; --brand: #FAF9F6; --brand-text: #141413;
+      --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5;
+      --border: #3A3833; --edge: #7A766C; --subtle: #2C2B27; --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6; --focus: #FAF9F6;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #141413; --panel: #1C1B19; --soft: #242320; --brand: #FAF9F6; --brand-text: #141413;
+    --band: #0D0D0C; --band-text: #FAF9F6; --band-muted: #A8A49B; --heading: #FAF9F6; --body: #C2BEB5;
+    --border: #3A3833; --edge: #7A766C; --subtle: #2C2B27; --warn-bg: #2A1A17; --warn-border: #7A2E26; --warn-text: #F3CFC6; --focus: #FAF9F6;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--page); color: var(--body); font: calc(16px * var(--tb, 1))/1.55 var(--sans); }
+  strong, b { color: var(--heading); font-weight: 600; }
+  a { color: var(--heading); }
+  .band { background: var(--band); color: var(--band-text); }
+  .band-inner { max-width: 900px; margin: 0 auto; padding: 40px 16px 32px; position: relative; }
+  header.band .band-inner { padding-top: 64px; }
+  .band h1 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.02em; font-size: calc(clamp(1.9rem, 6vw, 2.6rem) * var(--tb, 1)); line-height: 1.08; margin: 0 0 10px; color: var(--band-text); }
+  .band .by { margin: 0; color: var(--band-muted); }
+  .theme-toggle { position: absolute; top: 12px; right: 16px; min-height: 40px; padding: 6px 12px; font-size: calc(12px * var(--ts, 1)); font-weight: 500;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--band-text); background: transparent; border: 1px solid var(--band-muted); border-radius: var(--radius); cursor: pointer; font-family: var(--small-font); }
+  footer.band .band-inner { padding: 28px 16px 36px; font-size: calc(13px * var(--ts, 1)); font-family: var(--small-font); font-weight: 500; }
+  footer.band p { margin: 0 0 8px; color: var(--band-muted); }
+  footer.band a { color: inherit; text-underline-offset: 2px; }
+  footer.band .credit { margin-top: 14px; font-size: calc(14px * var(--tb, 1)); }
+  footer.band .sprite-credit { font-size: calc(12px * var(--ts, 1)); font-family: var(--small-font); font-weight: 500; }
+  .pixel-heart { width: 1em; height: .86em; vertical-align: -.08em; margin: 0 .15em; }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 40px; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  h2 { font-family: var(--serif); font-weight: 500; font-size: calc(1.5rem * var(--tb, 1)); color: var(--heading); margin: 0 0 10px; letter-spacing: -0.01em; }
+  h2:focus { outline: none; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .banner { border-radius: var(--radius); padding: 14px 16px; margin: 16px 0 0; border: 1px solid; }
+  .banner.warn { background: var(--warn-bg); border-color: var(--warn-border); color: var(--warn-text); }
+  .banner p { margin: 0 0 6px; } .banner p:last-child { margin-bottom: 0; } .banner strong { color: inherit; }
+  .banner ul { margin: 4px 0 6px; padding-left: 1.2em; } .banner li { margin: 3px 0; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; font: inherit; font-weight: 600; font-size: calc(16px * var(--tb, 1)); border-radius: var(--radius);
+    padding: 10px 20px; min-height: 48px; border: 1px solid var(--brand); background: var(--brand); color: var(--brand-text); cursor: pointer; text-decoration: none; }
+  .btn.secondary { background: var(--panel); color: var(--heading); border-color: var(--edge); }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 16px; }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .hint { font-size: calc(14.5px * var(--tb, 1)); margin: 6px 0 0; }
+  .status { margin: 12px 0 0; text-align: center; color: var(--heading); min-height: 1.55em; }
+  [hidden] { display: none !important; }
+
+  /* camera preview with a square scan frame (the whole picture is read, the frame is a guide) */
+  .viewer { position: relative; width: min(100%, 420px); aspect-ratio: 1; margin: 14px auto 0; overflow: hidden; border-radius: var(--radius); background: #000; }
+  .viewer video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .viewer .frame { position: absolute; inset: 15%; border: 3px solid #FFFFFF; border-radius: 12px; box-shadow: 0 0 0 999px rgba(0, 0, 0, .45); pointer-events: none; }
+
+  /* result: the QR is a PNG with its own white quiet zone, so it stays black on white in every theme */
+  .qr-box { width: min(100%, 420px); margin: 6px auto 0; }
+  .qr-box img { display: block; width: 100%; height: auto; image-rendering: pixelated; border: 1px solid var(--border); border-radius: var(--radius); background: #FFFFFF; }
+  .label { margin: 18px 0 6px; color: var(--heading); font-weight: 600; }
+  .qr-text { margin: 0; padding: 12px 14px; background: var(--soft); border: 1px solid var(--border); border-radius: var(--radius); color: var(--heading);
+    font-size: calc(17px * var(--tb, 1)); line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+  .qr-text a { text-underline-offset: 3px; }
+
+  @media print {
+    :root, :root[data-theme="dark"], :root[data-theme="light"], :root:not([data-theme="light"]) {
+      --page:#FFF; --panel:#FFF; --soft:#FFF; --subtle:#EEE; --heading:#000; --body:#222; --border:#999; --band:#FFF; --band-text:#000; --band-muted:#333;
+      --brand:#000; --brand-text:#FFF;
+    }
+    .theme-toggle, .home, .noprint, #scan-card { display: none !important; }
+    .card { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<header class="band">
+  <div class="band-inner">
+    <a class="home" href="./"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Home</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch between light and dark mode"></button>
+    <h1>QR Mirror</h1>
+    <p class="by">By Dr. Christian Rada, DO · Scan a QR code and show it again</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card" id="scan-card" aria-labelledby="scan-h">
+    <h2 id="scan-h">Scan a QR code</h2>
+    <p class="hint">Point the camera at a QR code. It reads by itself.</p>
+    <div class="viewer" id="viewer" hidden>
+      <video id="video" playsinline muted autoplay aria-label="Camera preview"></video>
+      <div class="frame" aria-hidden="true"></div>
+    </div>
+    <p class="status" id="scan-status" role="status"></p>
+    <div class="btns">
+      <button class="btn" type="button" id="start">Start scanning</button>
+      <button class="btn secondary" type="button" id="switch" hidden>Switch camera</button>
+      <button class="btn secondary" type="button" id="stop" hidden>Stop</button>
+      <button class="btn secondary" type="button" id="upload">Upload image</button>
+    </div>
+    <input type="file" id="file" accept="image/*" hidden>
+    <div class="banner warn" id="scan-msg" role="alert" hidden></div>
+  </section>
+
+  <section class="card" id="result-card" aria-labelledby="result-h" hidden>
+    <h2 id="result-h" tabindex="-1">QR code</h2>
+    <div class="qr-box" id="qr-box"><img id="qr-img" alt="The scanned QR code, drawn again"></div>
+    <div class="banner warn" id="result-msg" role="alert" hidden></div>
+    <p class="label" id="text-label">What it says</p>
+    <p class="qr-text" id="qr-text" aria-labelledby="text-label"></p>
+    <p class="hint" id="kind"></p>
+    <div class="btns noprint">
+      <button class="btn" type="button" id="copy">Copy</button>
+      <a class="btn" id="open" target="_blank" rel="noopener noreferrer" hidden>Open link</a>
+      <a class="btn secondary" id="download" download="qr-code.png">Download QR as PNG</a>
+      <button class="btn secondary" type="button" id="again">Scan again</button>
+    </div>
+    <p class="status" id="copy-status" role="status"></p>
+  </section>
+</main>
+
+<footer class="band">
+  <div class="band-inner">
+    <p>Scanning and the new QR code happen only on this device. Nothing is saved or sent anywhere. The page downloads its two QR code libraries, jsQR and qrcode-generator, from jsDelivr.</p>
+    <p class="credit">Made with
+      <svg class="pixel-heart" viewBox="0 0 7 6" width="14" height="12" role="img" aria-label="love" shape-rendering="crispEdges">
+        <path fill="#E5484D" d="M1 0h2v1h-2zM4 0h2v1h-2zM0 1h7v2h-7zM1 3h5v1h-5zM2 4h3v1h-3zM3 5h1v1h-1z"/>
+      </svg>
+      <a href="https://claude.com/claude-code">Claude</a></p>
+    <p class="sprite-credit"><a href="credits.html#qr-h">Credits</a><span class="gh-link" hidden> · <a href="https://github.com/christianrada-do/christianrada-do.github.io">Source code on GitHub</a></span></p>
+  </div>
+</footer>
+
+<script>
+/* QR Mirror (owner, 2026-11-13; chart .claude/chart/2026-11-13-qr-mirror.md in the notes repo).
+   Reads a QR code from the camera or a photo with jsQR, stops the camera, then draws the same text as a new QR code
+   with qrcode-generator and reads that one back to make sure it says exactly the same thing.
+   Nothing is stored or sent. Camera handling follows the ADHD site's scanner (adhd/vanderbilt-scan.js):
+   the camera stops on a result, Stop, leaving the page or hiding the tab, and a run counter ends stale streams. */
+(function () {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const video = $("video"), work = document.createElement("canvas");
+  let stream = null, timer = null, run = 0, cams = [], camId = null, current = "";
+
+  const LIB_MSG = "<p>The scanner didn't load. Check your internet connection, then reload this page.</p>";
+  const MSG = {
+    denied: "<p><strong>Camera access is blocked.</strong> To allow it:</p><ul>" +
+      "<li><b>iPhone (Safari):</b> tap <b>aA</b> in the address bar, then <b>Website Settings</b>, then set <b>Camera</b> to <b>Allow</b>.</li>" +
+      "<li><b>Android (Chrome):</b> tap the icon left of the address, then <b>Permissions</b>, then turn <b>Camera</b> on.</li></ul>" +
+      "<p>Then tap <b>Start scanning</b> again. Or tap <b>Upload image</b> to read a QR code from a photo or screenshot.</p>",
+    none: "<p>No camera was found on this device. Tap <b>Upload image</b> to read a QR code from a photo or screenshot.</p>",
+    busy: "<p>The camera is being used by another app. Close that app and try again, or tap <b>Upload image</b>.</p>",
+    unsupported: "<p>This browser can't use the camera here. Tap <b>Upload image</b> to read a QR code from a photo or screenshot.</p>",
+    other: "<p>The camera didn't start. Try again, or tap <b>Upload image</b> to read a QR code from a photo or screenshot.</p>",
+  };
+  function scanMsg(html) { const m = $("scan-msg"); m.innerHTML = html || ""; m.hidden = !html; }
+  function status(t) { $("scan-status").textContent = t; }
+
+  // ---------- reading ----------
+  // Reads a QR code from an image source (video, img) drawn at most `max` pixels wide. Returns the text or null.
+  function readImage(src, w0, h0, max, invert) {
+    if (!w0 || !h0) return null;
+    const k = Math.min(1, max / Math.max(w0, h0)), w = Math.max(1, Math.round(w0 * k)), h = Math.max(1, Math.round(h0 * k));
+    work.width = w; work.height = h;
+    const g = work.getContext("2d", { willReadFrequently: true });
+    g.drawImage(src, 0, 0, w, h);
+    const code = window.jsQR(g.getImageData(0, 0, w, h).data, w, h, { inversionAttempts: invert });
+    return code && code.data !== "" ? code.data : null;
+  }
+
+  // ---------- camera ----------
+  function stop(note) {
+    run++;
+    clearTimeout(timer); timer = null;
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    stream = null;
+    video.srcObject = null;
+    $("viewer").hidden = true; $("stop").hidden = true; $("switch").hidden = true;
+    $("start").hidden = false;
+    status(note || "");
+  }
+  function tick(mine) {
+    if (!stream || mine !== run) return;
+    let text = null;
+    try { text = readImage(video, video.videoWidth, video.videoHeight, 640, "attemptBoth"); } catch (e) { /* try the next frame */ }
+    if (mine !== run) return;
+    if (text !== null) { stop(); showResult(text); return; }
+    timer = setTimeout(() => tick(mine), 200);
+  }
+  async function start(deviceId) {
+    stop();
+    scanMsg("");
+    if (!window.jsQR) { scanMsg(LIB_MSG); return; }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { scanMsg(MSG.unsupported); return; }
+    const mine = run;
+    status("Starting the camera…");
+    let s;
+    try {
+      s = await navigator.mediaDevices.getUserMedia({
+        video: deviceId ? { deviceId: { exact: deviceId } } : { facingMode: { ideal: "environment" } }, audio: false });
+    } catch (e) {
+      if (mine !== run) return;
+      const n = e && e.name;
+      // The remembered camera is gone (unplugged, or the browser changed its id): try the default one.
+      if (deviceId && (n === "NotFoundError" || n === "OverconstrainedError")) { camId = null; return start(); }
+      status("");
+      scanMsg(n === "NotAllowedError" || n === "SecurityError" ? MSG.denied
+        : n === "NotFoundError" || n === "OverconstrainedError" ? MSG.none
+        : n === "NotReadableError" ? MSG.busy : MSG.other);
+      return;
+    }
+    // Stop, or another start, happened while the camera was being asked for: end this stream.
+    if (mine !== run) { s.getTracks().forEach(t => t.stop()); return; }
+    stream = s;
+    const track = s.getVideoTracks()[0];
+    camId = track && track.getSettings ? track.getSettings().deviceId || null : null;
+    video.srcObject = s;
+    const p = video.play();
+    if (p && p.catch) p.catch(() => { /* muted video plays on its own on most phones; frames are tried anyway */ });
+    $("viewer").hidden = false; $("start").hidden = true; $("stop").hidden = false;
+    status("Looking for a QR code…");
+    // Device names and the camera list are only filled in after permission, so ask now.
+    try {
+      cams = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === "videoinput");
+    } catch (e) { cams = []; }
+    if (mine === run) $("switch").hidden = cams.length < 2;
+    tick(mine);
+  }
+  function switchCamera() {
+    if (cams.length < 2) return;
+    const i = cams.findIndex(d => d.deviceId === camId);
+    start(cams[(i + 1) % cams.length].deviceId);
+  }
+  addEventListener("pagehide", () => stop());
+  document.addEventListener("visibilitychange", () => { if (document.hidden && stream) stop("Camera stopped. Tap Start scanning to go on."); });
+
+  // ---------- photo or screenshot ----------
+  async function handleFile(file) {
+    if (!file) return null;
+    scanMsg("");
+    if (!window.jsQR) { scanMsg(LIB_MSG); return null; }
+    const url = URL.createObjectURL(file);
+    let text = null;
+    try {
+      const img = new Image();
+      await new Promise((ok, bad) => { img.onload = ok; img.onerror = bad; img.src = url; });
+      // Large photos read better shrunk; small screenshots read better whole. Try a few sizes.
+      for (const max of [1600, 1000, 600]) {
+        text = readImage(img, img.naturalWidth, img.naturalHeight, max, "attemptBoth");
+        if (text !== null) break;
+      }
+    } catch (e) {
+      scanMsg("<p>That file couldn't be opened as a picture. Try a photo or screenshot (JPEG or PNG).</p>");
+      return null;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+    if (text === null) {
+      scanMsg("<p>No QR code was found in that picture. Try a sharper photo with the whole code in view.</p>");
+      return null;
+    }
+    stop();
+    showResult(text);
+    return text;
+  }
+
+  // ---------- result ----------
+  // A link only for an http or https address with no spaces or control characters; everything else
+  // (plain text, Wi-Fi settings, javascript:, data:, mailto: and so on) is shown as text and is never clickable.
+  function webUrl(text) {
+    const s = text.trim();
+    if (!/^https?:\/\/[^\s\u0000-\u001f\u007f]+$/i.test(s)) return null;
+    try {
+      const u = new URL(s);
+      return (u.protocol === "http:" || u.protocol === "https:") && u.hostname ? u.href : null;
+    } catch (e) { return null; }
+  }
+  // Draws the text as a QR code on a canvas: black on white, a 4-module quiet zone, whole pixels per module.
+  // UTF-8 bytes, error correction M (L when the text is too long for M). Returns the canvas, or null if too long.
+  function makeQR(text) {
+    window.qrcode.stringToBytes = s => Array.from(new TextEncoder().encode(s));
+    let q = null;
+    for (const level of ["M", "L"]) {
+      try { q = window.qrcode(0, level); q.addData(text, "Byte"); q.make(); break; } catch (e) { q = null; }
+    }
+    if (!q) return null;
+    const n = q.getModuleCount(), quiet = 4, cell = Math.max(4, Math.ceil(1000 / (n + 2 * quiet)));
+    const c = document.createElement("canvas");
+    c.width = c.height = (n + 2 * quiet) * cell;
+    const g = c.getContext("2d", { willReadFrequently: true });
+    g.fillStyle = "#FFFFFF"; g.fillRect(0, 0, c.width, c.height);
+    g.fillStyle = "#000000";
+    for (let r = 0; r < n; r++) for (let col = 0; col < n; col++) {
+      if (q.isDark(r, col)) g.fillRect((col + quiet) * cell, (r + quiet) * cell, cell, cell);
+    }
+    return c;
+  }
+  // Reads the new QR code back; true only if it says exactly the same thing.
+  function readsBack(c, text) {
+    const code = window.jsQR(c.getContext("2d").getImageData(0, 0, c.width, c.height).data, c.width, c.height, { inversionAttempts: "dontInvert" });
+    return !!code && code.data === text;
+  }
+
+  function showResult(text) {
+    current = text;
+    const box = $("qr-text"), link = webUrl(text);
+    box.textContent = "";
+    if (link) {
+      const a = document.createElement("a");
+      a.href = link; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = text;
+      box.append(a);
+      $("open").href = link; $("open").hidden = false;
+      $("kind").textContent = "Web link: opens in a new tab.";
+    } else {
+      box.textContent = text;
+      $("open").hidden = true; $("open").removeAttribute("href");
+      $("kind").textContent = "Shown as text only. It is not a web link, so it can't be opened from here.";
+    }
+    let ok = false, msg = "";
+    if (!window.qrcode) msg = "The QR code maker didn't load, so only the text is shown. Check your connection and reload to see the code.";
+    else {
+      const c = makeQR(text);
+      if (!c) msg = "This text is too long to fit in one QR code, so only the text is shown.";
+      else if (!readsBack(c, text)) msg = "The new QR code didn't read back exactly the same, so it isn't shown. The text below is what was scanned.";
+      else {
+        ok = true;
+        const png = c.toDataURL("image/png");
+        $("qr-img").src = png;
+        $("download").href = png;
+      }
+    }
+    $("qr-box").hidden = !ok; $("download").hidden = !ok;
+    if (!ok) { $("qr-img").removeAttribute("src"); $("download").removeAttribute("href"); }
+    $("result-msg").textContent = msg; $("result-msg").hidden = !msg;
+    window.QRMirror.lastRoundTrip = ok;
+    $("copy-status").textContent = "";
+    $("scan-card").hidden = true; $("result-card").hidden = false;
+    window.scrollTo(0, 0);
+    $("result-h").focus({ preventScroll: true });
+  }
+
+  async function copy() {
+    let done = false;
+    try { await navigator.clipboard.writeText(current); done = true; } catch (e) {
+      const t = document.createElement("textarea");
+      t.value = current; t.setAttribute("readonly", ""); t.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+      document.body.append(t); t.select();
+      try { done = document.execCommand("copy"); } catch (e2) { done = false; }
+      t.remove();
+    }
+    $("copy-status").textContent = done ? "Copied." : "Couldn't copy. Select the text above and copy it.";
+  }
+  function again() {
+    current = "";
+    $("result-card").hidden = true; $("scan-card").hidden = false;
+    $("qr-img").removeAttribute("src"); $("download").removeAttribute("href");
+    start(camId);
+  }
+
+  $("start").addEventListener("click", () => start(camId));
+  $("stop").addEventListener("click", () => stop());
+  $("switch").addEventListener("click", switchCamera);
+  $("upload").addEventListener("click", () => $("file").click());
+  $("file").addEventListener("change", e => { const f = e.target.files[0]; e.target.value = ""; handleFile(f); });
+  $("copy").addEventListener("click", copy);
+  $("again").addEventListener("click", again);
+
+  // For the browser check script (tests/qr-mirror.check.js in the notes repo).
+  window.QRMirror = { handleFile, showResult, webUrl, makeQR, lastRoundTrip: null };
+})();
+</script>
+<script>window.PedsShared && PedsShared.init();</script>
+</body>
+</html>

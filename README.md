@@ -28,6 +28,7 @@ A home page for planners and calculators, with a section for families and a sect
 | ADHD Rating Forms (Vanderbilt) | Parents and teachers | [adhd-forms.github.io](https://adhd-forms.github.io/) |
 | ADHD Forms: Clinic (Vanderbilt) | Clinicians (PIN) | [adhd-forms.github.io/clinic.html](https://adhd-forms.github.io/clinic.html) |
 | Baby Tracker | Families | [baby-tracker.html](https://christianrada-do.github.io/peds-tools/baby-tracker.html) |
+| QR Mirror (scan a QR code, show it again with its text) | Families | [qr-mirror.html](https://christianrada-do.github.io/peds-tools/qr-mirror.html) |
 
 More tools are coming.
 
